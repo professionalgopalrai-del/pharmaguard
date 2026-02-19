@@ -43,19 +43,19 @@ export default function DrugInput({ selected, onChange }: DrugInputProps) {
             {/* Search Input */}
             <div className="relative group">
                 <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-500 group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
                 <input
-                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-10 pr-20 text-sm placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white"
+                    className="w-full bg-input/50 border border-border rounded-xl py-3 pl-10 pr-20 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-foreground"
                     value={custom}
                     onChange={(e) => setCustom(e.target.value)}
                     placeholder="Search medication..."
                     onKeyDown={(e) => e.key === 'Enter' && addCustom()}
                 />
                 <button
-                    className="absolute right-2 top-2 bottom-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-400 transition-colors"
+                    className="absolute right-2 top-2 bottom-2 px-3 rounded-lg bg-secondary hover:bg-secondary/80 text-[10px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
                     onClick={addCustom}
                     disabled={!custom}
                 >
@@ -66,7 +66,7 @@ export default function DrugInput({ selected, onChange }: DrugInputProps) {
             {/* Quick Select Grid */}
             <div>
                 <div className="flex items-center justify-between mb-3">
-                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Common Requests</h4>
+                    <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Common Requests</h4>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                     {SUPPORTED_DRUGS.map(drug => {
@@ -76,13 +76,13 @@ export default function DrugInput({ selected, onChange }: DrugInputProps) {
                                 key={drug.name}
                                 onClick={() => toggleDrug(drug.name)}
                                 className={`text-left p-3 rounded-xl border transition-all duration-200 group relative overflow-hidden ${isActive
-                                        ? 'bg-primary/10 border-primary/50 text-white shadow-[0_0_15px_-3px_rgba(14,165,233,0.3)]'
-                                        : 'bg-white/[0.02] border-white/5 text-slate-400 hover:bg-white/[0.05] hover:border-white/10'
+                                    ? 'bg-primary/10 border-primary/50 text-foreground shadow-[0_0_15px_-3px_rgba(14,165,233,0.3)]'
+                                    : 'bg-card border-border text-muted-foreground hover:bg-accent hover:border-border/80'
                                     }`}
                             >
                                 <div className="relative z-10">
                                     <div className="flex justify-between items-center mb-1">
-                                        <span className={`text-[11px] font-black tracking-tight ${isActive ? 'text-primary' : 'text-slate-300 group-hover:text-white'}`}>
+                                        <span className={`text-[11px] font-black tracking-tight ${isActive ? 'text-primary' : 'text-foreground group-hover:text-primary'}`}>
                                             {drug.name}
                                         </span>
                                         {isActive && <span className="text-primary text-xs">✓</span>}

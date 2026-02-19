@@ -67,13 +67,13 @@ function ConfidenceBar({ score }: { score: number }) {
     const colorClass = pct >= 85 ? 'bg-emerald-400' : pct >= 65 ? 'bg-amber-400' : 'bg-rose-400';
     return (
         <div className="flex items-center gap-3">
-            <div className="flex-1 bg-white/10 rounded-full h-1.5 overflow-hidden backdrop-blur-sm">
+            <div className="flex-1 bg-secondary/50 rounded-full h-1.5 overflow-hidden backdrop-blur-sm">
                 <div
                     className={`h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,0,0,0.2)] ${colorClass}`}
                     style={{ width: `${pct}%` }}
                 />
             </div>
-            <span className="text-[10px] font-mono font-bold w-8 text-right text-slate-400">{pct}%</span>
+            <span className="text-[10px] font-mono font-bold w-8 text-right text-muted-foreground">{pct}%</span>
         </div>
     );
 }
@@ -91,23 +91,23 @@ function SingleResult({ data, index }: { data: ResultData; index: number }) {
     return (
         <div className="glass-card rounded-2xl overflow-hidden animate-enter" style={{ animationDelay: `${index * 0.1}s` }}>
             {/* Header */}
-            <div className="p-6 border-b border-white/5 bg-gradient-to-r from-white/[0.02] to-transparent">
+            <div className="p-6 border-b border-border bg-gradient-to-r from-secondary/10 to-transparent">
                 <div className="flex items-start justify-between gap-4 mb-4">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-2xl font-bold text-white tracking-tight">{data.drug}</h3>
+                            <h3 className="text-2xl font-bold text-foreground tracking-tight">{data.drug}</h3>
                             <RiskBadge
                                 risk={data.risk_assessment.risk_label}
                                 severity={data.risk_assessment.severity}
                                 size="md"
                             />
                         </div>
-                        <p className="text-xs font-medium text-slate-400">
+                        <p className="text-xs font-medium text-muted-foreground">
                             {data.pharmacogenomic_profile.primary_gene} · {data.pharmacogenomic_profile.phenotype}
                         </p>
                     </div>
                     <div className="text-right hidden sm:block">
-                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Confidence</p>
+                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Confidence</p>
                         <div className="w-24">
                             <ConfidenceBar score={data.risk_assessment.confidence_score} />
                         </div>
@@ -124,7 +124,7 @@ function SingleResult({ data, index }: { data: ResultData; index: number }) {
                     </div>
 
                     <h4 className="text-[10px] font-black text-primary uppercase tracking-widest mb-2">Clinical Action</h4>
-                    <p className="text-sm font-bold text-white leading-relaxed relative z-10">
+                    <p className="text-sm font-bold text-foreground leading-relaxed relative z-10">
                         {data.clinical_recommendation.action}
                     </p>
 
@@ -133,13 +133,13 @@ function SingleResult({ data, index }: { data: ResultData; index: number }) {
                             {data.clinical_recommendation.dosing_guidance && (
                                 <div>
                                     <span className="text-[9px] font-bold text-primary/70 uppercase tracking-wider block mb-1">Dosing</span>
-                                    <p className="text-xs text-slate-300 font-medium">{data.clinical_recommendation.dosing_guidance}</p>
+                                    <p className="text-xs text-foreground/80 font-medium">{data.clinical_recommendation.dosing_guidance}</p>
                                 </div>
                             )}
                             {data.clinical_recommendation.alternative_drug && (
                                 <div>
                                     <span className="text-[9px] font-bold text-primary/70 uppercase tracking-wider block mb-1">Consider Alternative</span>
-                                    <p className="text-xs text-white font-bold bg-primary/20 inline-block px-2 py-0.5 rounded">
+                                    <p className="text-xs text-primary-foreground font-bold bg-primary px-2 py-0.5 rounded inline-block">
                                         {data.clinical_recommendation.alternative_drug}
                                     </p>
                                 </div>

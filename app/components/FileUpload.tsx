@@ -43,7 +43,7 @@ export default function FileUpload({ onFile, file }: FileUploadProps) {
                     ? 'border-primary bg-primary/5 scale-[1.02]'
                     : file
                         ? 'border-emerald-500/30 bg-emerald-500/5'
-                        : 'border-white/10 hover:border-white/20 hover:bg-white/5'
+                        : 'border-border hover:border-border/80 hover:bg-accent/50'
                     }`}
                 onClick={() => inputRef.current?.click()}
                 onDragOver={(e) => {
@@ -84,48 +84,48 @@ export default function FileUpload({ onFile, file }: FileUploadProps) {
                             </p>
                         </div>
                         <div className="mt-4 pt-4 border-t border-emerald-500/10">
-                            <span className="text-[10px] font-bold text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-wider">
+                            <span className="text-[10px] font-bold text-muted-foreground group-hover:text-emerald-400 transition-colors uppercase tracking-wider">
                                 Replace File
                             </span>
                         </div>
                     </div>
                 ) : (
                     <div className="relative z-10 space-y-4">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto transition-all ${dragging ? 'bg-primary text-white shadow-lg shadow-primary/40' : 'bg-slate-800 text-slate-400 group-hover:text-white group-hover:scale-110'}`} style={{ width: '48px', height: '48px' }}>
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto transition-all ${dragging ? 'bg-primary text-white shadow-lg shadow-primary/40' : 'bg-secondary text-muted-foreground group-hover:text-foreground group-hover:scale-110'}`} style={{ width: '48px', height: '48px' }}>
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} style={{ width: '24px', height: '24px' }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                             </svg>
                         </div>
                         <div>
-                            <p className="text-sm font-bold text-slate-200 mb-1">Upload Patient VCF</p>
-                            <p className="text-xs text-slate-500 max-w-[180px] mx-auto">
+                            <p className="text-sm font-bold text-foreground mb-1">Upload Patient VCF</p>
+                            <p className="text-xs text-muted-foreground max-w-[180px] mx-auto">
                                 Drag & drop or click to browse filesystem
                             </p>
                         </div>
                     </div>
                 )}
+
+                {error && (
+                    <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-3 animate-enter">
+                        <span className="text-lg">⚠️</span>
+                        <p className="text-xs font-bold text-red-400">{error}</p>
+                    </div>
+                )}
+
+                {!file && (
+                    <div className="mt-4 flex justify-between items-center px-1 opacity-60 hover:opacity-100 transition-opacity">
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Max 5MB</span>
+                        <a
+                            href="/samples/sample_patient.vcf"
+                            download
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-[10px] font-bold text-primary hover:text-primary-dim border-b border-primary/20 hover:border-primary transition-all pb-0.5"
+                        >
+                            Download Sample VCF
+                        </a>
+                    </div>
+                )}
             </div>
-
-            {error && (
-                <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-3 animate-enter">
-                    <span className="text-lg">⚠️</span>
-                    <p className="text-xs font-bold text-red-400">{error}</p>
-                </div>
-            )}
-
-            {!file && (
-                <div className="mt-4 flex justify-between items-center px-1 opacity-60 hover:opacity-100 transition-opacity">
-                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Max 5MB</span>
-                    <a
-                        href="/samples/sample_patient.vcf"
-                        download
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-[10px] font-bold text-primary hover:text-primary-dim border-b border-primary/20 hover:border-primary transition-all pb-0.5"
-                    >
-                        Download Sample VCF
-                    </a>
-                </div>
-            )}
         </div>
     );
 }

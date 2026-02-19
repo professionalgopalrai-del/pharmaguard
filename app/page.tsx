@@ -4,6 +4,7 @@ import FileUpload from './components/FileUpload';
 import DrugInput from './components/DrugInput';
 import ResultsPanel from './components/ResultsPanel';
 import LoadingSpinner from './components/LoadingSpinner';
+import { ThemeToggle } from './components/ThemeToggle';
 
 export default function Home() {
   const [vcfFile, setVcfFile] = useState<File | null>(null);
@@ -59,33 +60,37 @@ export default function Home() {
       <div className="bg-glow-top" />
 
       {/* ── Navigation ──────────────────────────────────── */}
+      {/* ── Navigation ──────────────────────────────────── */}
       <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl px-6">
-        <div className="glass-panel rounded-full px-6 py-3 flex items-center justify-between">
+        <div className="rounded-full px-6 py-3 flex items-center justify-between border border-border/40 bg-surface-glass/80 backdrop-blur-xl shadow-lg transition-all duration-300">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/20">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20 text-primary">
               <span className="text-lg">🧬</span>
             </div>
-            <span className="font-display font-bold text-lg tracking-tight text-white italic">
+            <span className="font-display font-bold text-lg tracking-tight text-foreground italic">
               Pharma<span className="text-primary">Guard</span>
             </span>
           </div>
 
           <div className="hidden md:flex gap-8 items-center">
             {['Analysis', 'Guidelines', 'Network'].map(item => (
-              <a key={item} href="#" className="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-colors">
+              <a key={item} href="#" className="text-xs font-bold text-muted-foreground hover:text-primary uppercase tracking-widest transition-colors">
                 {item}
               </a>
             ))}
           </div>
 
-          <a
-            href="https://ai.google.dev/gemini-api/docs"
-            className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-slate-300 hover:bg-white/10 hover:text-white transition-all uppercase tracking-widest"
-            target="_blank"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            System Online
-          </a>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://openrouter.ai/docs"
+              className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary border border-border text-[10px] font-black text-muted-foreground hover:bg-muted transition-all uppercase tracking-widest"
+              target="_blank"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              System Online
+            </a>
+            <ThemeToggle />
+          </div>
         </div>
       </nav>
 

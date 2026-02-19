@@ -146,11 +146,18 @@ export function predictDrugRisk(
     const timestamp = new Date().toISOString();
     const primaryGene = DRUG_PRIMARY_GENE[normalDrug] || Object.keys(DRUG_GENE_RISK[normalDrug] || {})[0] || 'Unknown';
 
+    // Helper to check if genotype indicates presence of variant
+    const isVariantPresent = (gt?: string): boolean => {
+        if (!gt) return true; // Assume present if no genotype info (preserves legacy behavior for simple VCFs)
+        return gt.includes('1') || gt.includes('2') || gt.includes('3'); // Basic check for alt alleles
+    };
+
     // Find relevant variants for the primary gene
     const allVariants = parsedVcf.variants;
     const geneVariants = allVariants.filter(v =>
-        v.gene?.toUpperCase() === primaryGene.toUpperCase() ||
-        (v.rsid && KNOWN_PGX_RSIDS[v.rsid]?.gene === primaryGene)
+        (v.gene?.toUpperCase() === primaryGene.toUpperCase() ||
+            (v.rsid && KNOWN_PGX_RSIDS[v.rsid]?.gene === primaryGene)) &&
+        isVariantPresent(v.genotype)
     );
 
     // Build detected variants list

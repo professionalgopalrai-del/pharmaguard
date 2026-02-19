@@ -20,15 +20,15 @@ export default function ExplanationSection({ explanation }: { explanation: Expla
     ];
 
     return (
-        <div className="mt-2 bg-slate-950/30 rounded-xl border border-white/5 overflow-hidden">
-            <div className="flex border-b border-white/5">
+        <div className="mt-2 bg-card/40 rounded-xl border border-border overflow-hidden">
+            <div className="flex border-b border-border">
                 {tabs.map((tab) => (
                     <button
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
                         className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative ${activeTab === tab.key
-                                ? 'text-primary bg-white/[0.02]'
-                                : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.01]'
+                            ? 'text-primary bg-accent/20'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/10'
                             }`}
                     >
                         {tab.label}
@@ -40,7 +40,7 @@ export default function ExplanationSection({ explanation }: { explanation: Expla
             </div>
             <div className="p-5">
                 <div className="flex justify-between items-center mb-3">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                         {tabs.find(t => t.key === activeTab)?.label}
                     </span>
                     {explanation.generated_by === 'gemini' && (
@@ -49,7 +49,7 @@ export default function ExplanationSection({ explanation }: { explanation: Expla
                         </span>
                     )}
                 </div>
-                <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                <p className="text-sm text-foreground leading-relaxed font-medium">
                     {tabs.find((t) => t.key === activeTab)?.content || 'Data unavailable.'}
                 </p>
             </div>
