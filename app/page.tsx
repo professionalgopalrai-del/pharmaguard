@@ -1,92 +1,84 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FileUpload from './components/FileUpload';
 import DrugInput from './components/DrugInput';
 import ResultsPanel from './components/ResultsPanel';
 import LoadingSpinner from './components/LoadingSpinner';
 
-interface AnalysisResult {
-  success: boolean;
-  results: unknown[];
-  meta: {
-    patient_id: string;
-    vcf_file: string;
-    total_variants_parsed: number;
-    drugs_processed: string[];
-    drugs_unsupported: string[];
-  };
-  error?: string;
-}
-
 export default function Home() {
   const [vcfFile, setVcfFile] = useState<File | null>(null);
   const [selectedDrugs, setSelectedDrugs] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [error, setError] = useState('');
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleAnalyze() {
-    if (!vcfFile || selectedDrugs.length === 0) return;
+  const canAnalyze = vcfFile && selectedDrugs.length > 0;
 
+  const handleAnalyze = async () => {
+    if (!canAnalyze) return;
     setLoading(true);
-    setError('');
+    setError(null);
     setResult(null);
 
     try {
       const formData = new FormData();
-      formData.append('vcfFile', vcfFile);
-      formData.append('drugs', selectedDrugs.join(','));
+      formData.append('vcf', vcfFile);
+      formData.append('drugs', JSON.stringify(selectedDrugs));
 
-      const res = await fetch('/api/analyze', { method: 'POST', body: formData });
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Analysis failed');
 
-      if (!res.ok) {
-        setError(data.error || 'Analysis failed. Please check your file and try again.');
-      } else {
-        setResult(data);
-        setTimeout(() => {
-          document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
-      }
-    } catch {
-      setError('Network error. Please check your connection and try again.');
+      setResult(data);
+      // Wait for next tick to scroll
+      setTimeout(() => {
+        document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  function handleDownload() {
+  const handleDownload = () => {
     if (!result) return;
     const blob = new Blob([JSON.stringify(result.results, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `pharmaguard_${result.meta.patient_id}_${Date.now()}.json`;
+    a.download = `pharmaguard-report-${result.meta.patient_id}.json`;
     a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  const canAnalyze = vcfFile !== null && selectedDrugs.length > 0 && !loading;
+  };
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      <div className="bg-glow" />
+      {/* ── Background Atmosphere ────────────────────────── */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-cyan-500/10 blur-[120px] rounded-full animate-pulse-slow"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[100px] rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-[30%] right-[10%] w-[30%] h-[30%] bg-purple-600/5 blur-[80px] rounded-full animate-pulse-slow" style={{ animationDelay: '4s' }}></div>
+      </div>
 
-      {/* ── Navbar ──────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-opacity-90 backdrop-blur-xl border-b border-white border-opacity-10 px-8 flex items-center justify-between h-[64px]">
+      {/* ── Navigation ──────────────────────────────────── */}
+      <nav className="flex items-center justify-between px-10 py-6 border-b border-white border-opacity-5 sticky top-0 bg-slate-950/40 backdrop-blur-xl z-50">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">🧬</span>
-          <span className="font-extrabold text-lg tracking-tight text-white">
-            Pharma<span className="text-teal-400">Guard</span>
-          </span>
-          <span className="px-2 py-0.5 bg-teal-400 bg-opacity-10 border border-teal-400 border-opacity-30 rounded-full text-[10px] font-bold text-teal-400 tracking-wider uppercase">
-            v1.0 · RIFT 2026
-          </span>
+          <div className="w-8 h-8 rounded-lg bg-teal-400 flex items-center justify-center">
+            <span className="text-xl">🧬</span>
+          </div>
+          <span className="font-bold text-xl tracking-tight text-white uppercase italic">PharmaGuard</span>
         </div>
-        <div className="flex gap-4 items-center">
+        <div className="hidden md:flex gap-8 items-center">
+          {['Analysis', 'Guidelines', 'Network'].map(item => (
+            <a key={item} href="#" className="text-xs font-bold text-slate-500 hover:text-white tracking-widest uppercase transition-colors">{item}</a>
+          ))}
           <a
-            href="/api/analyze"
-            className="text-xs font-medium text-slate-400 hover:text-teal-400 transition-colors"
+            href="https://ai.google.dev/gemini-api/docs"
+            className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black text-slate-400 hover:text-white transition-all tracking-widest uppercase"
             target="_blank"
           >
             API DOCS
@@ -95,61 +87,73 @@ export default function Home() {
       </nav>
 
       {/* ── Hero section ────────────────────────────────────── */}
-      <header className="text-center pt-24 pb-16 px-6 max-w-3xl mx-auto w-full animate-fade-in">
-        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 text-white">
-          Genomic Drug Safety
+      <header className="text-center pt-32 pb-24 px-6 max-w-4xl mx-auto w-full animate-fade-in">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-400/10 border border-teal-400/20 rounded-full text-[10px] text-teal-300 font-bold mb-8 tracking-[0.2em] uppercase shadow-sm">
+          Precision Genomic Intelligence v1.0
+        </div>
+
+        <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-8 text-white leading-[1.05]">
+          The Future of<br />
+          <span className="text-teal-400">Drug Safety</span> Analysis
         </h1>
 
-        <p className="text-lg text-slate-400 leading-relaxed mb-0 font-medium">
-          Upload a patient's VCF file to instantly check for pharmacogenomic risks and receive personalized dosing guidance.
+        <p className="text-xl text-slate-400 leading-relaxed mb-0 font-medium max-w-2xl mx-auto">
+          Instant pharmacogenomic insights to predict patient response and personalize clinical outcomes with CPIC-aligned intelligence.
         </p>
       </header>
 
       {/* ── Main content ───────────────────────────────── */}
-      <main className="flex-1 max-w-2xl w-full mx-auto px-6 pb-32">
-        <div className="space-y-12">
+      <main className="flex-1 max-w-3xl w-full mx-auto px-6 pb-40">
+        <div className="space-y-16">
 
           {/* Form Container */}
-          <div className="card frosted p-10 border-white/5 shadow-xl">
+          <div className="card frosted p-12 border-white/10 shadow-2xl relative">
+            <div className="absolute top-0 right-0 p-8 opacity-20 hidden sm:block">
+              <span className="text-6xl">📊</span>
+            </div>
+
             {/* Step 1 */}
-            <div className="mb-12">
-              <label className="text-xs font-bold text-teal-400 uppercase tracking-[0.2em] mb-4 block">Step 01. Patient Genome</label>
+            <div className="mb-14">
+              <label className="section-title">Step 01. Patient Genomic Profile</label>
               <FileUpload onFile={setVcfFile} file={vcfFile} />
             </div>
 
             {/* Step 2 */}
-            <div className="mb-12">
-              <label className="text-xs font-bold text-teal-400 uppercase tracking-[0.2em] mb-4 block">Step 02. Select Medications</label>
+            <div className="mb-14">
+              <label className="section-title">Step 02. Select Target Medications</label>
               <DrugInput selected={selectedDrugs} onChange={setSelectedDrugs} />
             </div>
 
             {/* Analyze button */}
             <button
-              className="btn btn-primary w-full py-5 text-base justify-center font-bold tracking-tight shadow-xl"
+              className={`btn btn-primary w-full py-6 text-lg justify-center font-bold tracking-tight shadow-xl transition-all ${!canAnalyze ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:scale-[1.01]'}`}
               onClick={handleAnalyze}
-              disabled={!canAnalyze}
+              disabled={!canAnalyze || loading}
               id="analyze-btn"
             >
               {loading ? (
-                <>
-                  <span className="animate-spin mr-3">⟳</span>
-                  Analyzing Genome...
-                </>
+                <div className="flex items-center gap-4">
+                  <LoadingSpinner />
+                  <span>Synthesizing Clinical Data...</span>
+                </div>
               ) : (
-                <>Run Safety Analysis</>
+                <div className="flex items-center gap-3">
+                  <span>Start PGx Analysis</span>
+                  <span className="text-xl">→</span>
+                </div>
               )}
             </button>
           </div>
 
           {/* Results Display */}
-          <div className="min-h-[200px]">
+          <div className="min-h-[200px]" id="results-section">
             {loading ? (
-              <div className="card frosted py-20 flex flex-col items-center justify-center text-center animate-pulse">
+              <div className="py-24 flex flex-col items-center justify-center text-center animate-pulse">
+                <p className="text-teal-400 font-bold tracking-widest uppercase text-xs mb-4">Computing Variants</p>
                 <LoadingSpinner />
-                <p className="mt-6 text-slate-400 font-medium tracking-tight">Processing clinical variants...</p>
               </div>
             ) : result ? (
-              <div id="results-section" className="animate-fade-in">
+              <div className="animate-fade-in border-t border-white/5 pt-20">
                 <ResultsPanel
                   results={result.results as Parameters<typeof ResultsPanel>[0]['results']}
                   meta={result.meta}
@@ -158,8 +162,8 @@ export default function Home() {
                 />
               </div>
             ) : (
-              <div className="text-center px-8 border-t border-white/5 pt-12">
-                <p className="text-sm text-slate-500 font-medium">Ready to analyze. Upload a patient VCF to begin.</p>
+              <div className="text-center px-8 border-t border-white/5 pt-20">
+                <p className="text-sm text-slate-500 font-medium italic">Awaiting clinical input to generate safety report.</p>
               </div>
             )}
           </div>
@@ -167,13 +171,23 @@ export default function Home() {
       </main>
 
       {/* ── Footer ─────────────────────────────────────── */}
-      <footer className="border-t border-white border-opacity-5 py-8 px-10 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-950 bg-opacity-40">
-        <p className="text-xs font-medium text-slate-500 tracking-wide uppercase">
-          🧬 PharmaGuard · RIFT 2026 Hackathon · Pharmacogenomics Track
-        </p>
-        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center md:text-right">
-          CPIC GUIDELINES · NOT FOR CLINICAL USE WITHOUT PHYSICIAN OVERSIGHT
-        </p>
+      <footer className="border-t border-white border-opacity-5 py-12 px-10 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-950/40 backdrop-blur-md">
+        <div>
+          <p className="text-xs font-bold text-slate-500 tracking-widest uppercase mb-2">
+            🧬 PharmaGuard Platform
+          </p>
+          <p className="text-[10px] text-slate-600 font-medium">
+            Clinical data aligned with CPIC v3.4 Star-Allele Guidelines.
+          </p>
+        </div>
+        <div className="flex gap-10">
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+            RIFT 2026 · PGx TRACK
+          </p>
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+            MADE WITH GEMINI 2.0
+          </p>
+        </div>
       </footer>
     </div>
   );
