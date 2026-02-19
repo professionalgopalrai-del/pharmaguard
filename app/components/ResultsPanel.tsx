@@ -64,38 +64,30 @@ interface ResultsPanelProps {
 
 function ConfidenceBar({ score }: { score: number }) {
     const pct = Math.round(score * 100);
-    const color = pct >= 85 ? 'var(--risk-safe)' : pct >= 65 ? 'var(--risk-adjust)' : 'var(--risk-ineffective)';
+    const colorClass = pct >= 85 ? 'bg-cyan-400' : pct >= 65 ? 'bg-orange-400' : 'bg-red-400';
+    const textClass = pct >= 85 ? 'text-cyan-400' : pct >= 65 ? 'text-orange-400' : 'text-red-400';
     return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div className="progress-bar" style={{ flex: 1 }}>
+        <div className="flex items-center gap-3">
+            <div className="flex-1 bg-white/5 rounded-full h-1.5 overflow-hidden">
                 <div
-                    className="progress-fill"
-                    style={{ width: `${pct}%`, background: color }}
+                    className={`h-full transition-all duration-1000 ease-out ${colorClass}`}
+                    style={{ width: `${pct}%` }}
                 />
             </div>
-            <span style={{ fontWeight: 700, color, fontSize: '0.88rem', minWidth: '38px' }}>{pct}%</span>
+            <span className={`text-[10px] font-black w-8 text-right ${textClass}`}>{pct}%</span>
         </div>
     );
 }
 
 function UrgencyBadge({ urgency }: { urgency: string }) {
-    const cfg: Record<string, { color: string; bg: string; border: string; label: string }> = {
-        critical: { color: '#fca5a5', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', label: '⚡ CRITICAL' },
-        urgent: { color: '#fdba74', bg: 'rgba(249,115,22,0.12)', border: 'rgba(249,115,22,0.3)', label: '⚠ URGENT' },
-        routine: { color: '#86efac', bg: 'rgba(34,197,94,0.12)', border: 'rgba(34,197,94,0.3)', label: '✓ ROUTINE' },
+    const cfg: Record<string, { cls: string; label: string }> = {
+        critical: { cls: 'bg-red-500/10 border-red-500/30 text-red-500', label: 'CRITICAL' },
+        urgent: { cls: 'bg-orange-500/10 border-orange-500/30 text-orange-500', label: 'URGENT' },
+        routine: { cls: 'bg-cyan-500/10 border-cyan-500/30 text-cyan-500', label: 'ROUTINE' },
     };
     const c = cfg[urgency] || cfg.routine;
     return (
-        <span style={{
-            padding: '3px 10px',
-            borderRadius: '100px',
-            fontSize: '0.72rem',
-            fontWeight: 700,
-            letterSpacing: '0.05em',
-            color: c.color,
-            background: c.bg,
-            border: `1px solid ${c.border}`,
-        }}>
+        <span className={`px-2 py-0.5 rounded-full border text-[9px] font-black tracking-widest ${c.cls}`}>
             {c.label}
         </span>
     );
@@ -117,221 +109,114 @@ function SingleResult({ data, index }: { data: ResultData; index: number }) {
     const singleJson = JSON.stringify(data, null, 2);
 
     return (
-        <div
-            className="card animate-fade-in"
-            style={{ animationDelay: `${index * 0.1}s` }}
-        >
-            {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-                <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '6px' }}>
-                        <RiskBadge
-                            risk={data.risk_assessment.risk_label}
-                            severity={data.risk_assessment.severity}
-                            size="lg"
-                        />
-                        <span style={{
-                            padding: '4px 12px',
-                            background: 'rgba(0,210,200,0.1)',
-                            border: '1px solid var(--border)',
-                            borderRadius: '8px',
-                            fontSize: '1rem',
-                            fontWeight: 700,
-                            color: 'var(--teal)',
-                            letterSpacing: '0.03em',
-                        }}>
-                            {data.drug}
-                        </span>
+        <div className="animate-fade-in group" style={{ animationDelay: `${index * 0.15}s` }}>
+            <div className="card frosted p-0 overflow-hidden glow-border">
+                {/* Header */}
+                <div className="p-8 pb-4">
+                    <div className="flex items-start justify-between gap-4 mb-6">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <RiskBadge
+                                risk={data.risk_assessment.risk_label}
+                                severity={data.risk_assessment.severity}
+                                size="lg"
+                            />
+                            <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xl font-black text-white tracking-tight">
+                                {data.drug}
+                            </div>
+                        </div>
+                        <UrgencyBadge urgency={data.clinical_recommendation.urgency} />
                     </div>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        Patient: <span className="mono" style={{ color: 'var(--text-secondary)' }}>{data.patient_id}</span>
-                        &nbsp;·&nbsp;
-                        {new Date(data.timestamp).toLocaleString()}
-                    </p>
-                </div>
-                <UrgencyBadge urgency={data.clinical_recommendation.urgency} />
-            </div>
-
-            {/* Key metrics row */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-                gap: '0.75rem',
-                marginBottom: '1.25rem',
-            }}>
-                {/* Gene + Diplotype */}
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius)', padding: '0.75rem' }}>
-                    <p className="section-title" style={{ marginBottom: '4px' }}>Primary Gene</p>
-                    <p style={{ fontWeight: 700, color: 'var(--teal)', fontSize: '1.1rem' }}>
-                        {data.pharmacogenomic_profile.primary_gene}
-                    </p>
-                    <p className="mono" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                        {data.pharmacogenomic_profile.diplotype}
-                    </p>
                 </div>
 
-                {/* Phenotype */}
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius)', padding: '0.75rem' }}>
-                    <p className="section-title" style={{ marginBottom: '4px' }}>Phenotype</p>
-                    <p style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                        {data.pharmacogenomic_profile.phenotype}
-                    </p>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                        {data.pharmacogenomic_profile.phenotype_label}
-                    </p>
+                {/* Sub-header Summary */}
+                <div className="px-8 py-4 bg-white/[0.02] border-y border-white/5 flex flex-wrap gap-x-12 gap-y-4">
+                    <div>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">PGx Profile</p>
+                        <p className="text-sm font-bold text-teal-400">
+                            {data.pharmacogenomic_profile.primary_gene}: {data.pharmacogenomic_profile.diplotype}
+                        </p>
+                    </div>
+                    <div>
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Phenotype</p>
+                        <p className="text-sm font-bold text-white">{data.pharmacogenomic_profile.phenotype}</p>
+                    </div>
+                    <div className="flex-1 min-w-[200px] max-w-sm">
+                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Verification Confidence</p>
+                        <ConfidenceBar score={data.risk_assessment.confidence_score} />
+                    </div>
                 </div>
 
-                {/* Confidence */}
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius)', padding: '0.75rem' }}>
-                    <p className="section-title" style={{ marginBottom: '8px' }}>Confidence</p>
-                    <ConfidenceBar score={data.risk_assessment.confidence_score} />
-                </div>
-
-                {/* Variants */}
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius)', padding: '0.75rem' }}>
-                    <p className="section-title" style={{ marginBottom: '4px' }}>Variants</p>
-                    <p style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '1.1rem' }}>
-                        {data.pharmacogenomic_profile.detected_variants.length}
-                    </p>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                        {data.quality_metrics.diplotype_confidence} confidence
-                    </p>
-                </div>
-            </div>
-
-            {/* Clinical Recommendation (expanded by default) */}
-            <div style={{ borderRadius: 'var(--radius)', border: '1px solid var(--border)', overflow: 'hidden', marginBottom: '0.75rem' }}>
-                <div className="expandable-header" onClick={() => toggle('recommendation')}>
-                    <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                        💊 Clinical Recommendation
-                    </span>
-                    <span style={{ color: 'var(--text-muted)', transition: 'transform var(--transition)', display: 'inline-block', transform: expanded.recommendation ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-                </div>
-                {expanded.recommendation && (
-                    <div className="animate-fade-in" style={{ padding: '1rem', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        <div>
-                            <p className="section-title">Action Required</p>
-                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>{data.clinical_recommendation.action}</p>
+                {/* Content Sections */}
+                <div className="p-8 flex flex-col gap-6">
+                    {/* Recommendation Card */}
+                    <div className="rounded-2xl bg-teal-400/[0.03] border border-teal-400/10 p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                            <span className="text-xl">💊</span>
+                            <h4 className="font-black text-white text-sm tracking-tight uppercase">Clinical Recommendation</h4>
                         </div>
-                        <div className="divider" style={{ margin: '0' }} />
-                        <div>
-                            <p className="section-title">Dosing Guidance</p>
-                            <p style={{ fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 500 }}>{data.clinical_recommendation.dosing_guidance}</p>
-                        </div>
-                        {data.clinical_recommendation.alternative_drug && (
-                            <>
-                                <div className="divider" style={{ margin: '0' }} />
+                        <p className="text-sm text-slate-300 leading-relaxed font-medium mb-6">
+                            {data.clinical_recommendation.action}
+                        </p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-teal-400/10">
+                            <div>
+                                <label className="section-title">Guidance</label>
+                                <p className="text-sm font-bold text-white">{data.clinical_recommendation.dosing_guidance}</p>
+                            </div>
+                            {data.clinical_recommendation.alternative_drug && (
                                 <div>
-                                    <p className="section-title">Alternative Drug</p>
-                                    <p style={{ fontSize: '0.875rem', color: 'var(--teal)' }}>{data.clinical_recommendation.alternative_drug}</p>
+                                    <label className="section-title">Alternative</label>
+                                    <p className="text-sm font-bold text-teal-400">{data.clinical_recommendation.alternative_drug}</p>
                                 </div>
-                            </>
-                        )}
-                        <div className="divider" style={{ margin: '0' }} />
-                        <div>
-                            <p className="section-title">Monitoring</p>
-                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{data.clinical_recommendation.monitoring}</p>
+                            )}
                         </div>
-                        {data.clinical_recommendation.cpic_guideline && (
-                            <div style={{
-                                display: 'flex', gap: '6px', alignItems: 'center',
-                                fontSize: '0.78rem', color: 'var(--text-muted)',
-                            }}>
-                                <span>📎</span>
-                                <span>{data.clinical_recommendation.cpic_guideline}</span>
-                            </div>
-                        )}
                     </div>
-                )}
-            </div>
 
-            {/* Detected Variants */}
-            <div style={{ borderRadius: 'var(--radius)', border: '1px solid var(--border)', overflow: 'hidden', marginBottom: '0.75rem' }}>
-                <div className="expandable-header" onClick={() => toggle('variants')}>
-                    <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                        🔬 Detected Variants ({data.pharmacogenomic_profile.detected_variants.length})
-                    </span>
-                    <span style={{ color: 'var(--text-muted)', transition: 'transform var(--transition)', display: 'inline-block', transform: expanded.variants ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-                </div>
-                {expanded.variants && (
-                    <div className="animate-fade-in" style={{ padding: '1rem', borderTop: '1px solid var(--border)' }}>
-                        <VariantTable variants={data.pharmacogenomic_profile.detected_variants} />
-                        {data.quality_metrics.coverage_note && (
-                            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.75rem', fontStyle: 'italic' }}>
-                                ℹ️ {data.quality_metrics.coverage_note}
-                            </p>
-                        )}
-                    </div>
-                )}
-            </div>
+                    {/* Expandable Sections */}
+                    <div className="flex flex-col gap-3">
+                        {/* Variants */}
+                        <div className="rounded-xl border border-white/5 bg-white/[0.01] overflow-hidden">
+                            <button className="w-full flex items-center justify-between p-4 hover:bg-white/[0.03] transition-colors" onClick={() => toggle('variants')}>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                                    Genomic Evidence ({data.pharmacogenomic_profile.detected_variants.length})
+                                </span>
+                                <span className={`text-[10px] transition-transform ${expanded.variants ? 'rotate-180' : ''}`}>▼</span>
+                            </button>
+                            {expanded.variants && (
+                                <div className="p-4 pt-0 animate-fade-in">
+                                    <VariantTable variants={data.pharmacogenomic_profile.detected_variants} />
+                                </div>
+                            )}
+                        </div>
 
-            {/* LLM Explanation */}
-            <div style={{ borderRadius: 'var(--radius)', border: '1px solid var(--border)', overflow: 'hidden', marginBottom: '0.75rem' }}>
-                <div className="expandable-header" onClick={() => toggle('explanation')}>
-                    <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                        🤖 AI Explanation
-                    </span>
-                    <span style={{ color: 'var(--text-muted)', transition: 'transform var(--transition)', display: 'inline-block', transform: expanded.explanation ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-                </div>
-                {expanded.explanation && (
-                    <div className="animate-fade-in" style={{ padding: '1rem', borderTop: '1px solid var(--border)' }}>
-                        <ExplanationSection explanation={data.llm_generated_explanation} />
-                    </div>
-                )}
-            </div>
+                        {/* AI Explanation */}
+                        <div className="rounded-xl border border-white/5 bg-white/[0.01] overflow-hidden">
+                            <button className="w-full flex items-center justify-between p-4 hover:bg-white/[0.03] transition-colors" onClick={() => toggle('explanation')}>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Detailed AI Explanation</span>
+                                <span className={`text-[10px] transition-transform ${expanded.explanation ? 'rotate-180' : ''}`}>▼</span>
+                            </button>
+                            {expanded.explanation && (
+                                <div className="p-6 pt-2 animate-fade-in border-t border-white/5">
+                                    <ExplanationSection explanation={data.llm_generated_explanation} />
+                                </div>
+                            )}
+                        </div>
 
-            {/* Quality Metrics */}
-            <div style={{ borderRadius: 'var(--radius)', border: '1px solid var(--border)', overflow: 'hidden', marginBottom: '0.75rem' }}>
-                <div className="expandable-header" onClick={() => toggle('quality')}>
-                    <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                        📊 Quality Metrics
-                    </span>
-                    <span style={{ color: 'var(--text-muted)', transition: 'transform var(--transition)', display: 'inline-block', transform: expanded.quality ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-                </div>
-                {expanded.quality && (
-                    <div className="animate-fade-in" style={{ padding: '1rem', borderTop: '1px solid var(--border)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
-                        {[
-                            { label: 'VCF Parsing', value: data.quality_metrics.vcf_parsing_success ? '✅ Success' : '❌ Errors', color: data.quality_metrics.vcf_parsing_success ? 'var(--risk-safe)' : 'var(--risk-toxic)' },
-                            { label: 'Total Variants', value: data.quality_metrics.variants_detected, color: 'var(--text-primary)' },
-                            { label: 'PGx Variants', value: data.quality_metrics.pgx_variants_found, color: 'var(--teal)' },
-                            { label: 'Diplotype Confidence', value: data.quality_metrics.diplotype_confidence.toUpperCase(), color: 'var(--text-primary)' },
-                        ].map(m => (
-                            <div key={m.label} style={{ background: 'var(--bg-secondary)', borderRadius: '8px', padding: '0.6rem 0.75rem' }}>
-                                <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '2px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{m.label}</p>
-                                <p style={{ fontSize: '0.9rem', fontWeight: 600, color: m.color }}>{String(m.value)}</p>
-                            </div>
-                        ))}
+                        {/* Raw Trace */}
+                        <div className="rounded-xl border border-white/5 bg-white/[0.01] overflow-hidden">
+                            <button className="w-full flex items-center justify-between p-4 hover:bg-white/[0.03] transition-colors" onClick={() => toggle('json')}>
+                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Advanced Data Trace</span>
+                                <span className={`text-[10px] transition-transform ${expanded.json ? 'rotate-180' : ''}`}>▼</span>
+                            </button>
+                            {expanded.json && (
+                                <div className="animate-fade-in">
+                                    <pre className="mono p-6 bg-slate-950 text-[10px] text-slate-500 overflow-x-auto max-h-[300px]">
+                                        {singleJson}
+                                    </pre>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                )}
-            </div>
-
-            {/* Raw JSON */}
-            <div style={{ borderRadius: 'var(--radius)', border: '1px solid var(--border)', overflow: 'hidden' }}>
-                <div className="expandable-header" onClick={() => toggle('json')}>
-                    <span style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--text-primary)' }}>
-                        {'{ }'} Raw JSON Output
-                    </span>
-                    <span style={{ color: 'var(--text-muted)', transition: 'transform var(--transition)', display: 'inline-block', transform: expanded.json ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                 </div>
-                {expanded.json && (
-                    <div className="animate-fade-in" style={{ borderTop: '1px solid var(--border)' }}>
-                        <pre
-                            className="mono"
-                            style={{
-                                background: 'var(--bg-secondary)',
-                                padding: '1rem',
-                                overflowX: 'auto',
-                                fontSize: '0.75rem',
-                                lineHeight: 1.7,
-                                color: 'var(--text-secondary)',
-                                maxHeight: '400px',
-                                overflowY: 'auto',
-                            }}
-                        >
-                            {singleJson}
-                        </pre>
-                    </div>
-                )}
             </div>
         </div>
     );
@@ -347,47 +232,48 @@ export default function ResultsPanel({ results, meta, onDownload, rawJson }: Res
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+        <div className="flex flex-col gap-8">
             {/* Results header bar */}
-            <div className="card-glass" style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                flexWrap: 'wrap', gap: '0.75rem', padding: '1rem 1.25rem',
-                border: '1px solid var(--teal)',
-            }}>
+            <div className="card frosted glow-border p-8 flex items-center justify-between flex-wrap gap-8">
                 <div>
-                    <p style={{ fontWeight: 700, color: 'var(--teal)', marginBottom: '2px' }}>
-                        ✅ Analysis Complete
-                    </p>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                        {meta.vcf_file} &nbsp;·&nbsp; {results.length} drug{results.length !== 1 ? 's' : ''} analyzed &nbsp;·&nbsp;
-                        {meta.total_variants_parsed} total variants parsed
-                    </p>
+                    <div className="flex items-center gap-3 mb-2">
+                        <span className="w-12 h-12 rounded-2xl bg-teal-400/10 flex items-center justify-center text-teal-400">
+                            <span className="text-2xl">✓</span>
+                        </span>
+                        <div>
+                            <h3 className="text-lg font-black text-white">Analysis Complete</h3>
+                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                Report ID: {meta.patient_id.toUpperCase()} · {results.length} DRUGS
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    <button className="btn btn-ghost" onClick={copyToClipboard} id="copy-json-btn">
-                        {copied ? '✅ Copied!' : '📋 Copy JSON'}
+                <div className="flex gap-4">
+                    <button className="btn btn-secondary px-6 py-3 text-[10px] font-black uppercase tracking-widest" onClick={copyToClipboard} id="copy-json-btn">
+                        {copied ? 'Copied' : 'Copy Trace'}
                     </button>
-                    <button className="btn btn-secondary" onClick={onDownload} id="download-json-btn">
-                        ⬇️ Download JSON
+                    <button className="btn btn-primary px-8 py-3 text-[10px] font-black uppercase tracking-widest" onClick={onDownload} id="download-json-btn">
+                        Export Report
                     </button>
                 </div>
             </div>
 
-            {/* Unsupported drugs warning */}
+            {/* Unsupported drugs alert */}
             {meta.drugs_unsupported && meta.drugs_unsupported.length > 0 && (
-                <div className="alert alert-warning">
+                <div className="alert alert-warning py-4 font-medium text-xs">
                     <span>⚠️</span>
                     <span>
-                        The following drugs are not yet supported and were skipped: <strong>{meta.drugs_unsupported.join(', ')}</strong>.
-                        Supported: CODEINE, WARFARIN, CLOPIDOGREL, SIMVASTATIN, AZATHIOPRINE, FLUOROURACIL.
+                        External Catalog: <strong>{meta.drugs_unsupported.join(', ')}</strong> pending diplotype mapping.
                     </span>
                 </div>
             )}
 
-            {/* Individual drug results */}
-            {results.map((result, i) => (
-                <SingleResult key={result.drug} data={result} index={i} />
-            ))}
+            {/* Results Grid/List */}
+            <div className="flex flex-col gap-6">
+                {results.map((result, i) => (
+                    <SingleResult key={result.drug} data={result} index={i} />
+                ))}
+            </div>
         </div>
     );
 }

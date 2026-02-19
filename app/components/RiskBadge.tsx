@@ -35,30 +35,23 @@ const SIZE_STYLES: Record<string, { padding: string; fontSize: string; gap: stri
 export default function RiskBadge({ risk, severity, size = 'md', showSeverity = true }: RiskBadgeProps) {
     const config = RISK_CONFIG[risk] || RISK_CONFIG['Unknown'];
     const sevConfig = severity ? SEV_CONFIG[severity] || SEV_CONFIG['none'] : null;
-    const sizeStyle = SIZE_STYLES[size];
+    const sizeData = SIZE_STYLES[size];
 
     return (
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <div className="inline-flex items-center gap-2 flex-wrap">
             <span
-                className={`badge ${config.className}`}
-                style={{ padding: sizeStyle.padding, fontSize: sizeStyle.fontSize, gap: sizeStyle.gap }}
+                className={`badge h-fit px-3 py-1 font-black ${config.className} ${size === 'lg' ? 'text-[11px]' : 'text-[9px]'}`}
                 aria-label={`Risk: ${config.label}`}
             >
-                <span role="img" aria-hidden>{config.emoji}</span>
-                {config.label}
+                <span className="opacity-80">{config.emoji}</span>
+                {config.label.toUpperCase()}
             </span>
 
             {showSeverity && sevConfig && severity !== 'none' && (
-                <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    fontSize: '0.72rem',
-                    color: 'var(--text-secondary)',
-                }}>
-                    <span className={`sev-dot ${sevConfig.cls}`} />
-                    {sevConfig.label}
-                </span>
+                <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/5 border border-white/5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${sevConfig.cls}`} />
+                    <span className="text-[9px] font-black tracking-widest text-slate-500">{sevConfig.label}</span>
+                </div>
             )}
         </div>
     );

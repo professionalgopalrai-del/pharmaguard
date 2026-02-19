@@ -39,7 +39,7 @@ export default function FileUpload({ onFile, file }: FileUploadProps) {
     return (
         <div>
             <div
-                className={`upload-zone${dragging ? ' drag-over' : ''}${file ? ' has-file' : ''}`}
+                className={`upload-zone frosted transition-all duration-300 ${dragging ? 'glow-border scale-[1.02]' : ''} ${file ? 'border-teal-400/50 bg-teal-400/5' : 'border-white/10 hover:border-white/20'}`}
                 onClick={() => inputRef.current?.click()}
                 onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
                 onDragLeave={() => setDragging(false)}
@@ -53,66 +53,63 @@ export default function FileUpload({ onFile, file }: FileUploadProps) {
                     ref={inputRef}
                     type="file"
                     accept=".vcf"
-                    style={{ display: 'none' }}
+                    className="hidden"
                     onChange={onChange}
                     id="vcf-file-input"
                 />
 
                 {file ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-                        <span style={{ fontSize: '2rem' }}>✅</span>
-                        <div>
-                            <p style={{ fontWeight: 600, color: 'var(--risk-safe)', fontSize: '0.95rem' }}>{file.name}</p>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '4px' }}>
-                                {(file.size / 1024).toFixed(1)} KB &nbsp;·&nbsp; VCF file ready
+                    <div className="flex flex-col items-center py-4 animate-fade-in">
+                        <div className="w-12 h-12 rounded-full bg-teal-400/20 flex items-center justify-center mb-4">
+                            <span className="text-xl text-teal-400">✓</span>
+                        </div>
+                        <div className="text-center">
+                            <p className="font-bold text-teal-400 text-sm">{file.name}</p>
+                            <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">
+                                {(file.size / 1024).toFixed(1)} KB · VALID VCF
                             </p>
                         </div>
                         <button
-                            className="btn btn-ghost"
-                            style={{ fontSize: '0.78rem', padding: '4px 12px' }}
+                            className="mt-6 text-[10px] font-black text-slate-400 hover:text-white uppercase tracking-tighter transition-colors"
                             onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
                         >
-                            Replace file
+                            Change Genome File
                         </button>
                     </div>
                 ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ fontSize: '2.5rem', lineHeight: 1 }}>🧬</div>
-                        <div>
-                            <p style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '1rem' }}>
-                                {dragging ? 'Drop your VCF file here' : 'Drag & drop VCF file'}
-                            </p>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.83rem', marginTop: '4px' }}>
-                                or <span style={{ color: 'var(--teal)', fontWeight: 600 }}>Browse files</span> &nbsp;·&nbsp; Max 5 MB
-                            </p>
+                    <div className="flex flex-col items-center py-6 text-center">
+                        <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                            <span className="text-3xl">🧬</span>
                         </div>
-                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            {['CYP2D6', 'CYP2C19', 'CYP2C9', 'SLCO1B1', 'TPMT', 'DPYD'].map(g => (
-                                <span key={g} className="chip" style={{ fontSize: '0.72rem', cursor: 'default' }}>{g}</span>
-                            ))}
+                        <div>
+                            <p className="font-bold text-white text-base mb-2">
+                                {dragging ? 'Release to Load' : 'Import VCF Data'}
+                            </p>
+                            <p className="text-xs text-slate-500 max-w-[200px] leading-relaxed">
+                                Drag & drop or <span className="text-teal-400 underline underline-offset-4">browse patient record</span>
+                            </p>
                         </div>
                     </div>
                 )}
             </div>
 
             {error && (
-                <div className="alert alert-error" style={{ marginTop: '0.75rem' }}>
-                    <span>⚠️</span>
-                    <span>{error}</span>
+                <div className="alert alert-error mt-4 text-[10px] py-3 font-bold uppercase tracking-wider">
+                    <span>⚠️ {error}</span>
                 </div>
             )}
 
-            <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                    VCF v4.2 format · INFO tags: GENE, STAR, RS supported
+            <div className="mt-4 flex justify-between items-center px-1">
+                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
+                    VCF v4.2 · MAX 5MB
                 </p>
                 <a
                     href="/samples/sample_patient.vcf"
                     download
                     onClick={(e) => e.stopPropagation()}
-                    style={{ fontSize: '0.78rem', color: 'var(--teal)', textDecoration: 'none', fontWeight: 500 }}
+                    className="text-[10px] font-black text-teal-400/70 hover:text-teal-400 uppercase tracking-tighter border-b border-teal-400/20 pb-0.5"
                 >
-                    ↓ Download sample VCF
+                    Get Sample File
                 </a>
             </div>
         </div>

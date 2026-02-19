@@ -1,40 +1,42 @@
+@import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* Ultra-refined Palette */
-  --bg-primary: #02060a;
-  --bg-secondary: #050b14;
-  --bg-card: rgba(10, 25, 41, 0.7);
-  --bg-card-hover: rgba(15, 35, 55, 0.85);
+  /* Ultra-refined Medical Palette */
+  --bg-primary: #020408;
+  --bg-secondary: #080c14;
+  --bg-card: rgba(13, 20, 32, 0.75);
+  --bg-card-hover: rgba(18, 28, 45, 0.9);
 
-  /* Primary Accent: PharmaGuard Teal */
-  --teal: #00f2ea;
-  --teal-dim: #00b8b2;
-  --teal-glow: rgba(0, 242, 234, 0.15);
-  --teal-border: rgba(0, 242, 234, 0.25);
+  /* Primary Accent: Medical Cyan/Teal */
+  --teal: #00f5ff;
+  --teal-dim: #00d4dd;
+  --teal-glow: rgba(0, 245, 255, 0.12);
+  --teal-border: rgba(0, 245, 255, 0.15);
 
   /* Semantic Tones */
-  --text-primary: #f0f7ff;
-  --text-secondary: #94a9c9;
-  --text-muted: #536b8a;
-  --text-on-accent: #02060a;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-on-accent: #020408;
 
-  /* Risk Indicators - Sophisticated Shades */
-  --risk-safe: #10b981;
-  --risk-adjust: #f59e0b;
-  --risk-toxic: #f43f5e;
-  --risk-ineffective: #fb923c;
-  --risk-unknown: #8b5cf6;
+  /* Risk Indicators - Modern Medical Scale */
+  --risk-safe: #06b6d4;
+  --risk-adjust: #fb923c;
+  --risk-toxic: #ef4444;
+  --risk-ineffective: #8b5cf6;
+  --risk-unknown: #475569;
 
-  /* Glassmorphism Specs */
-  --glass-blur: 16px;
-  --shadow-premium: 0 8px 32px 0 rgba(0, 0, 0, 0.8), 0 4px 12px 0 rgba(0, 242, 234, 0.05);
+  /* Glassmorphism & Shadow Specs */
+  --glass-blur: 24px;
+  --shadow-premium: 0 4px 20px -5px rgba(0, 0, 0, 0.5), 0 1px 3px 0 rgba(0, 0, 0, 0.1), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 
   /* Layout */
-  --radius: 14px;
-  --radius-lg: 20px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 32px;
   --transition: cubic-bezier(0.4, 0, 0.2, 1);
-  --duration: 0.3s;
+  --duration: 0.2s;
 }
 
 *,
@@ -338,12 +340,25 @@ main {
 
 /* Section title */
 .section-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--teal);
+  color: var(--text-muted);
   margin-bottom: 0.75rem;
+}
+
+/* Utilities */
+.frosted {
+  background: var(--bg-card);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glow-border {
+  border: 1px solid var(--teal-border);
+  box-shadow: 0 0 15px var(--teal-glow);
 }
 
 /* Mono font */

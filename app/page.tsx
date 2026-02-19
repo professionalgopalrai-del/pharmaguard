@@ -94,162 +94,152 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ── Hero ───────────────────────────────────────── */}
-      <header className="text-center pt-20 pb-16 px-6 max-w-4xl mx-auto w-full animate-fade-in">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-400 bg-opacity-10 border border-teal-400 border-opacity-20 rounded-full text-xs text-teal-400 font-semibold mb-8 tracking-wide shadow-sm">
-          🏥 CPIC-ALIGNED · PHARMACOGENOMICS AI · 6 CRITICAL GENES
+      {/* ── Hero section ────────────────────────────────────── */}
+      <header className="text-center pt-24 pb-20 px-6 max-w-5xl mx-auto w-full animate-fade-in">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-full text-[10px] text-slate-400 font-bold mb-10 tracking-[0.2em] uppercase shadow-inner">
+          <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
+          CPIC-ALIGNED · GENOMIC INTELLIGENCE · v1.0
         </div>
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.05] bg-gradient-to-br from-white via-slate-100 to-teal-400 bg-clip-text text-transparent">
-          Predict Drug Risks<br />Before They Harm
+
+        <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.95] text-white">
+          Smart Drug<br />
+          <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">Safety</span> Analysis
         </h1>
-        <p className="text-lg text-slate-400 max-w-xl mx-auto leading-relaxed mb-12">
-          Upload a patient VCF file and instantly receive AI-powered pharmacogenomic risk predictions
-          aligned with CPIC guidelines across <span className="text-teal-400 font-medium">CYP2D6, CYP2C19, CYP2C9, SLCO1B1, TPMT, and DPYD</span>.
+
+        <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-16 font-medium">
+          PharmaGuard leverages advanced pharmacogenomics to predict patient response across
+          <span className="text-white"> 6 critical genes</span> and primary psychiatric & cardiovascular medications.
         </p>
 
-        {/* Stats row */}
-        <div className="flex gap-12 justify-center flex-wrap">
+        {/* Info Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
           {[
-            { value: '6', label: 'Critical Genes' },
-            { value: '6', label: 'Supported Drugs' },
-            { value: 'CPIC', label: 'Guideline Aligned' },
-            { value: 'AI', label: 'LLM Explanations' },
+            { label: 'Standard', value: 'VCF v4.2' },
+            { label: 'Guidelines', value: 'CPIC v3' },
+            { label: 'Model', value: 'Gemini 2.0' },
+            { label: 'Scope', value: 'PGx Only' },
           ].map(s => (
-            <div key={s.label} className="text-center">
-              <p className="text-2xl font-black text-teal-400">{s.value}</p>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{s.label}</p>
+            <div key={s.label} className="p-4 rounded-2xl bg-white bg-opacity-[0.02] border border-white border-opacity-5">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
+              <p className="text-sm font-bold text-teal-400">{s.value}</p>
             </div>
           ))}
         </div>
       </header>
 
-      {/* ── Main form ──────────────────────────────────── */}
-      <main className="flex-1 max-w-4xl w-full mx-auto px-6 pb-20">
-        {/* Input card */}
-        <div className="card mb-8">
-          {/* Step 1 */}
-          <div className="mb-10">
-            <div className="flex items-center gap-4 mb-6">
-              <span className="w-8 h-8 rounded-full bg-teal-400 text-slate-900 flex items-center justify-center font-bold text-sm flex-shrink-0">
-                1
-              </span>
-              <h2 className="text-lg font-bold text-white">
-                Upload Patient VCF File
-              </h2>
-            </div>
-            <FileUpload onFile={setVcfFile} file={vcfFile} />
-          </div>
+      {/* ── Main content ───────────────────────────────── */}
+      <main className="flex-1 max-w-5xl w-full mx-auto px-6 pb-32">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-          <div className="divider" />
+          {/* Left Column: Form */}
+          <div className="w-full lg:w-5/12 sticky top-24">
+            <div className="card frosted glow-border p-8">
+              <h3 className="text-xl font-black text-white mb-8 tracking-tight">Configuration</h3>
 
-          {/* Step 2 */}
-          <div className="mb-10">
-            <div className="flex items-center gap-4 mb-6">
-              <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all ${selectedDrugs.length > 0 ? 'bg-teal-400 text-slate-900' : 'bg-slate-800 text-slate-500 border border-slate-700'
-                }`}>
-                2
-              </span>
-              <h2 className="text-lg font-bold text-white">
-                Select Drug(s) to Analyze
-              </h2>
-            </div>
-            <DrugInput selected={selectedDrugs} onChange={setSelectedDrugs} />
-          </div>
-
-          <div className="divider" />
-
-          {/* Analyze button */}
-          <button
-            className="btn btn-primary w-full py-4 text-lg justify-center font-bold"
-            onClick={handleAnalyze}
-            disabled={!canAnalyze}
-            id="analyze-btn"
-          >
-            {loading ? (
-              <>
-                <span className="animate-spin mr-2">⟳</span>
-                Analyzing...
-              </>
-            ) : (
-              <>🔬 Run Pharmacogenomic Analysis</>
-            )}
-          </button>
-
-          {!vcfFile && !loading && (
-            <p className="text-center text-[11px] text-slate-500 mt-4 uppercase tracking-wider font-semibold">
-              UPLOAD A VCF FILE AND SELECT AT LEAST ONE DRUG TO ENABLE ANALYSIS
-            </p>
-          )}
-        </div>
-
-        {/* Error display */}
-        {error && (
-          <div className="alert alert-error animate-fade-in" style={{ marginBottom: '1.5rem' }}>
-            <span style={{ fontSize: '1.1rem' }}>⚠️</span>
-            <div>
-              <p style={{ fontWeight: 600, marginBottom: '2px' }}>Analysis Failed</p>
-              <p style={{ fontSize: '0.83rem' }}>{error}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Loading */}
-        {loading && (
-          <div className="card animate-fade-in">
-            <LoadingSpinner />
-          </div>
-        )}
-
-        {/* Results */}
-        {result && !loading && (
-          <div id="results-section">
-            <ResultsPanel
-              results={result.results as Parameters<typeof ResultsPanel>[0]['results']}
-              meta={result.meta}
-              onDownload={handleDownload}
-              rawJson={JSON.stringify(result.results, null, 2)}
-            />
-          </div>
-        )}
-
-        {/* Info section */}
-        {!result && !loading && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '1rem',
-            marginTop: '2rem',
-          }}>
-            {[
-              {
-                icon: '🧬',
-                title: 'VCF v4.2 Parser',
-                desc: 'Parses standard VCF files with GENE, STAR allele, and RS ID annotations from INFO column.',
-              },
-              {
-                icon: '⚠️',
-                title: 'Risk Prediction',
-                desc: 'CPIC-aligned risk classification: Safe, Adjust Dosage, Toxic, Ineffective, or Unknown.',
-              },
-              {
-                icon: '🤖',
-                title: 'AI Explanations',
-                desc: 'Gemini AI generates clinical summaries, mechanisms, and patient-friendly explanations.',
-              },
-              {
-                icon: '📋',
-                title: 'JSON Export',
-                desc: 'Download structured JSON output matching the PharmaGuard schema for integration.',
-              },
-            ].map(item => (
-              <div key={item.title} className="card" style={{ padding: '1.25rem' }}>
-                <span style={{ fontSize: '1.75rem', display: 'block', marginBottom: '0.6rem' }}>{item.icon}</span>
-                <h3 style={{ fontWeight: 700, marginBottom: '0.4rem', fontSize: '0.92rem' }}>{item.title}</h3>
-                <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{item.desc}</p>
+              {/* Step 1 */}
+              <div className="mb-10">
+                <label className="section-title">01. Genomic Data</label>
+                <FileUpload onFile={setVcfFile} file={vcfFile} />
               </div>
-            ))}
+
+              {/* Step 2 */}
+              <div className="mb-10">
+                <label className="section-title">02. Medication</label>
+                <DrugInput selected={selectedDrugs} onChange={setSelectedDrugs} />
+              </div>
+
+              {/* Analyze button */}
+              <button
+                className="btn btn-primary w-full py-5 text-sm justify-center font-black tracking-widest uppercase shadow-2xl"
+                onClick={handleAnalyze}
+                disabled={!canAnalyze}
+                id="analyze-btn"
+              >
+                {loading ? (
+                  <>
+                    <span className="animate-spin mr-3 font-normal">⟳</span>
+                    Analyzing Patient Genome...
+                  </>
+                ) : (
+                  <>Begin PGx Analysis</>
+                )}
+              </button>
+
+              {!vcfFile && !loading && (
+                <p className="text-center text-[9px] text-slate-500 mt-6 font-bold tracking-[0.15em] uppercase">
+                  Awaiting Input Data
+                </p>
+              )}
+            </div>
+
+            {/* Error display */}
+            {error && (
+              <div className="alert alert-error mt-6 animate-slide-in">
+                <span className="text-lg">⚠️</span>
+                <div>
+                  <p className="font-bold underline decoration-red-500/50 underline-offset-4 mb-1">Analysis Halted</p>
+                  <p className="text-[11px] leading-relaxed opacity-80">{error}</p>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Right Column: Dynamic Results/Info */}
+          <div className="w-full lg:w-7/12 min-h-[600px] flex flex-col gap-6">
+            {loading ? (
+              <div className="card frosted flex-1 flex flex-col items-center justify-center p-12 text-center">
+                <LoadingSpinner />
+                <h4 className="mt-8 text-lg font-bold text-white">Synthesizing Genomic Insights</h4>
+                <p className="text-sm text-slate-500 mt-2 max-w-xs">Cross-referencing variants with CPIC star-allele guidelines and LLM knowledge base.</p>
+              </div>
+            ) : result ? (
+              <div id="results-section" className="animate-fade-in">
+                <ResultsPanel
+                  results={result.results as Parameters<typeof ResultsPanel>[0]['results']}
+                  meta={result.meta}
+                  onDownload={handleDownload}
+                  rawJson={JSON.stringify(result.results, null, 2)}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-6">
+                <div className="card bg-teal-400 bg-opacity-[0.02] border-teal-400/10 p-8">
+                  <h4 className="text-teal-400 font-bold mb-4 flex items-center gap-2">
+                    <span className="text-xl">ℹ️</span> How it works
+                  </h4>
+                  <ul className="space-y-4">
+                    {[
+                      { t: 'Format', d: 'Supports VCF v4.2 with rsIDs or GENE:STAR notation in INFO.' },
+                      { t: 'Logic', d: 'Rule-based diplotype mapping follows CPIC consensus tables.' },
+                      { t: 'Explanation', d: 'Gemini Pro 1.5 generates context-aware clinical mechanism summaries.' },
+                    ].map(i => (
+                      <li key={i.t} className="flex gap-4">
+                        <span className="text-teal-400 text-xs mt-1">●</span>
+                        <div>
+                          <p className="text-sm font-bold text-white mb-1">{i.t}</p>
+                          <p className="text-xs text-slate-500 leading-relaxed">{i.d}</p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    { i: '🤖', t: 'LLM Agent', d: 'Advanced reasoning for complex drug interactions.' },
+                    { i: '🔒', t: 'Privacy First', d: 'Local parsing of genomic variants before synthesis.' },
+                  ].map(card => (
+                    <div key={card.t} className="card bg-white/5 border-white/5 p-6 hover:bg-white/[0.07] transition-all">
+                      <span className="text-2xl mb-4 block">{card.i}</span>
+                      <h5 className="font-bold text-white text-sm mb-2">{card.t}</h5>
+                      <p className="text-[11px] text-slate-500 leading-relaxed">{card.d}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
 
       {/* ── Footer ─────────────────────────────────────── */}

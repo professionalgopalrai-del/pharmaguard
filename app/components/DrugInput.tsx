@@ -39,31 +39,32 @@ export default function DrugInput({ selected, onChange }: DrugInputProps) {
     }
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <div className="flex flex-col gap-6">
             {/* Quick-select chips */}
             <div>
-                <p className="label">Supported Drugs</p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Supported Catalog</p>
+                <div className="grid grid-cols-2 gap-2">
                     {SUPPORTED_DRUGS.map(drug => (
                         <button
                             key={drug.name}
-                            className={`chip${selected.includes(drug.name) ? ' active' : ''}`}
+                            className={`p-3 rounded-xl border text-left transition-all duration-200 ${selected.includes(drug.name)
+                                    ? 'bg-teal-400/10 border-teal-400/50 shadow-[0_0_15px_rgba(0,245,255,0.05)]'
+                                    : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/[0.08]'
+                                }`}
                             onClick={() => toggleDrug(drug.name)}
-                            title={`${drug.desc} · Gene: ${drug.gene}`}
-                            aria-pressed={selected.includes(drug.name)}
                             id={`drug-chip-${drug.name.toLowerCase()}`}
                         >
-                            {selected.includes(drug.name) && (
-                                <span style={{ color: 'var(--teal)', fontSize: '0.75rem' }}>✓</span>
-                            )}
-                            {drug.name}
-                            <span style={{
-                                fontSize: '0.68rem',
-                                opacity: 0.7,
-                                fontWeight: 400,
-                            }}>
-                                {drug.gene}
-                            </span>
+                            <div className="flex justify-between items-start mb-1">
+                                <span className={`text-[11px] font-black tracking-tighter ${selected.includes(drug.name) ? 'text-teal-400' : 'text-white'}`}>
+                                    {drug.name}
+                                </span>
+                                {selected.includes(drug.name) && (
+                                    <span className="text-[10px] text-teal-400 font-bold">✓</span>
+                                )}
+                            </div>
+                            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide">
+                                Target: {drug.gene}
+                            </p>
                         </button>
                     ))}
                 </div>
@@ -71,17 +72,19 @@ export default function DrugInput({ selected, onChange }: DrugInputProps) {
 
             {/* Custom drug entry */}
             <div>
-                <p className="label">Add Custom Drug</p>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div className="flex gap-2">
                     <input
-                        className="input"
+                        className="input text-xs py-3 bg-white/5 border-white/5 focus:bg-white/10"
                         value={custom}
                         onChange={e => setCustom(e.target.value)}
-                        placeholder="e.g. TRAMADOL"
+                        placeholder="Search alternative drug..."
                         onKeyDown={e => e.key === 'Enter' && addCustom()}
                         id="custom-drug-input"
                     />
-                    <button className="btn btn-secondary" onClick={addCustom} style={{ whiteSpace: 'nowrap' }}>
+                    <button
+                        className="p-3 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-slate-400 hover:text-white uppercase transition-all"
+                        onClick={addCustom}
+                    >
                         Add
                     </button>
                 </div>
@@ -89,47 +92,27 @@ export default function DrugInput({ selected, onChange }: DrugInputProps) {
 
             {/* Selected summary */}
             {selected.length > 0 && (
-                <div>
-                    <p className="label">Selected ({selected.length})</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                <div className="p-4 rounded-2xl bg-teal-400/5 border border-teal-400/10 animate-fade-in">
+                    <p className="text-[9px] font-black text-teal-400/50 uppercase tracking-[0.2em] mb-4">
+                        QUEUE ({selected.length})
+                    </p>
+                    <div className="flex flex-wrap gap-2">
                         {selected.map(drug => (
-                            <span
+                            <div
                                 key={drug}
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    padding: '4px 10px',
-                                    background: 'var(--teal-glow)',
-                                    border: '1px solid var(--teal)',
-                                    borderRadius: '100px',
-                                    fontSize: '0.8rem',
-                                    color: 'var(--teal)',
-                                    fontWeight: 600,
-                                }}
+                                className="flex items-center gap-2 p-2 pl-3 rounded-lg bg-teal-400/10 border border-teal-400/20 text-[10px] font-bold text-teal-400"
                             >
                                 {drug}
                                 <button
                                     onClick={() => removeDrug(drug)}
-                                    style={{
-                                        background: 'none', border: 'none', cursor: 'pointer',
-                                        color: 'var(--text-muted)', fontSize: '0.9rem', lineHeight: 1,
-                                        padding: 0, display: 'flex',
-                                    }}
+                                    className="w-4 h-4 rounded-full bg-teal-400/20 flex items-center justify-center hover:bg-teal-400 hover:text-black transition-colors"
                                     aria-label={`Remove ${drug}`}
                                 >
                                     ×
                                 </button>
-                            </span>
+                            </div>
                         ))}
                     </div>
-                </div>
-            )}
-
-            {selected.length === 0 && (
-                <div className="alert alert-warning" style={{ fontSize: '0.83rem' }}>
-                    <span>⚠️</span>
-                    <span>Select at least one drug to analyze.</span>
                 </div>
             )}
         </div>

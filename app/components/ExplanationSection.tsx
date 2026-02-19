@@ -13,92 +13,59 @@ export default function ExplanationSection({ explanation }: { explanation: Expla
     const [activeTab, setActiveTab] = useState<'summary' | 'mechanism' | 'clinical' | 'patient'>('summary');
 
     const tabs: Array<{ key: typeof activeTab; label: string; emoji: string; content: string }> = [
-        { key: 'summary', label: 'Clinical Summary', emoji: '📋', content: explanation.summary },
+        { key: 'summary', label: 'Summary', emoji: '📋', content: explanation.summary },
         { key: 'mechanism', label: 'Mechanism', emoji: '🔬', content: explanation.mechanism },
-        { key: 'clinical', label: 'Clinical Context', emoji: '🏥', content: explanation.clinical_context },
-        { key: 'patient', label: 'Patient-Friendly', emoji: '👤', content: explanation.patient_friendly },
+        { key: 'clinical', label: 'Context', emoji: '🏥', content: explanation.clinical_context },
+        { key: 'patient', label: 'Patient', emoji: '👤', content: explanation.patient_friendly },
     ];
 
     return (
-        <div>
-            {/* AI badge */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <p className="section-title">🤖 AI-Generated Explanation</p>
-                <span className="badge" style={{
-                    fontSize: '0.7rem',
-                    padding: '3px 8px',
-                    background: explanation.generated_by === 'gemini'
-                        ? 'rgba(59, 130, 246, 0.15)'
-                        : 'rgba(139, 92, 246, 0.15)',
-                    border: `1px solid ${explanation.generated_by === 'gemini' ? 'rgba(59,130,246,0.3)' : 'rgba(139,92,246,0.3)'}`,
-                    color: explanation.generated_by === 'gemini' ? '#93c5fd' : '#c4b5fd',
-                }}>
+        <div className="flex flex-col gap-6">
+            <div className="flex items-center justify-between">
+                <label className="section-title mb-0">Genomic Intelligence</label>
+                <div className={`px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-widest ${explanation.generated_by === 'gemini'
+                        ? 'bg-blue-500/10 border-blue-500/20 text-blue-400'
+                        : 'bg-purple-500/10 border-purple-500/20 text-purple-400'
+                    }`}>
                     {explanation.generated_by === 'gemini' ? '✨ Gemini AI' : '⚙️ Rule-Based'}
-                </span>
+                </div>
             </div>
 
-            {/* Tabs */}
-            <div style={{
-                display: 'flex',
-                gap: '0.25rem',
-                marginBottom: '1rem',
-                background: 'var(--bg-secondary)',
-                borderRadius: 'var(--radius)',
-                padding: '4px',
-                flexWrap: 'wrap',
-            }}>
+            {/* Tabs Navigation */}
+            <div className="flex p-1 bg-white/[0.03] border border-white/5 rounded-2xl">
                 {tabs.map(tab => (
                     <button
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
                         id={`explanation-tab-${tab.key}`}
-                        style={{
-                            flex: '1',
-                            minWidth: '100px',
-                            padding: '6px 10px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontSize: '0.78rem',
-                            fontWeight: activeTab === tab.key ? 600 : 400,
-                            background: activeTab === tab.key ? 'var(--bg-card)' : 'transparent',
-                            color: activeTab === tab.key ? 'var(--teal)' : 'var(--text-secondary)',
-                            transition: 'all var(--transition)',
-                            whiteSpace: 'nowrap',
-                        }}
+                        className={`flex-1 py-3 px-2 rounded-xl text-[10px] font-black uppercase tracking-tighter transition-all duration-200 ${activeTab === tab.key
+                                ? 'bg-white/10 text-white shadow-lg'
+                                : 'text-slate-500 hover:text-slate-300'
+                            }`}
                     >
-                        {tab.emoji} {tab.label}
+                        {tab.label}
                     </button>
                 ))}
             </div>
 
-            {/* Content */}
-            {tabs.map(tab => (
-                activeTab === tab.key && (
-                    <div key={tab.key} className="animate-fade-in" style={{
-                        background: 'var(--bg-secondary)',
-                        borderRadius: 'var(--radius)',
-                        padding: '1rem',
-                        lineHeight: 1.8,
-                        fontSize: '0.88rem',
-                        color: tab.key === 'patient' ? 'var(--text-primary)' : 'var(--text-secondary)',
-                    }}>
-                        {tab.key === 'patient' && (
-                            <div style={{
-                                display: 'flex',
-                                gap: '6px',
-                                alignItems: 'center',
-                                marginBottom: '0.5rem',
-                                fontSize: '0.75rem',
-                                color: 'var(--text-muted)',
-                            }}>
-                                <span>👤</span> Plain-language explanation
-                            </div>
-                        )}
-                        {tab.content || <em style={{ color: 'var(--text-muted)' }}>No content available.</em>}
-                    </div>
-                )
-            ))}
+            {/* Content Area */}
+            <div className="relative">
+                {tabs.map(tab => (
+                    activeTab === tab.key && (
+                        <div key={tab.key} className="animate-fade-in bg-white/[0.02] border border-white/5 rounded-2xl p-6 leading-relaxed">
+                            {tab.key === 'patient' && (
+                                <div className="flex items-center gap-2 mb-4 text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                                    Plain-Language Translation
+                                </div>
+                            )}
+                            <p className={`text-sm ${tab.key === 'patient' ? 'text-white font-medium' : 'text-slate-400'}`}>
+                                {tab.content || <em className="text-slate-600">Genetic data insufficient for detailed mapping.</em>}
+                            </p>
+                        </div>
+                    )
+                ))}
+            </div>
         </div>
     );
 }

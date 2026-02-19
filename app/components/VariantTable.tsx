@@ -23,73 +23,62 @@ export default function VariantTable({ variants }: { variants: Variant[] }) {
     }
 
     return (
-        <div style={{ overflowX: 'auto', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-            <table className="data-table" style={{ minWidth: '600px' }}>
+        <div className="overflow-x-auto rounded-xl border border-white/5 bg-slate-950/20">
+            <table className="data-table min-w-[600px]">
                 <thead>
-                    <tr>
-                        <th>rsID</th>
-                        <th>Gene</th>
-                        <th>Location</th>
-                        <th>Ref → Alt</th>
-                        <th>Allele</th>
-                        <th>Genotype</th>
-                        <th>Effect</th>
+                    <tr className="bg-white/5">
+                        <th className="text-[9px] font-black tracking-widest text-slate-500 uppercase py-4">rsID</th>
+                        <th className="text-[9px] font-black tracking-widest text-slate-500 uppercase py-4">Target Gene</th>
+                        <th className="text-[9px] font-black tracking-widest text-slate-500 uppercase py-4">Locus</th>
+                        <th className="text-[9px] font-black tracking-widest text-slate-500 uppercase py-4">Variation</th>
+                        <th className="text-[9px] font-black tracking-widest text-slate-500 uppercase py-4">Allele</th>
+                        <th className="text-[9px] font-black tracking-widest text-slate-500 uppercase py-4">Call</th>
+                        <th className="text-[9px] font-black tracking-widest text-slate-500 uppercase py-4">Clinical Effect</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-white/[0.03]">
                     {variants.map((v, i) => (
-                        <tr key={i} className="animate-slide-in" style={{ animationDelay: `${i * 0.05}s` }}>
-                            <td>
-                                <span className="mono" style={{ color: 'var(--teal)', fontSize: '0.82rem' }}>
+                        <tr key={i} className="animate-slide-in hover:bg-white/[0.02] transition-colors" style={{ animationDelay: `${i * 0.05}s` }}>
+                            <td className="py-4">
+                                <span className="mono text-[11px] font-bold text-teal-400">
                                     {v.rsid !== 'unknown' ? (
                                         <a
                                             href={`https://www.ncbi.nlm.nih.gov/snp/${v.rsid}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            style={{ color: 'var(--teal)', textDecoration: 'none' }}
+                                            className="hover:underline decoration-teal-400/30"
                                         >
                                             {v.rsid}
                                         </a>
                                     ) : v.rsid}
                                 </span>
                             </td>
-                            <td>
-                                <span style={{
-                                    padding: '2px 8px',
-                                    background: 'rgba(0,210,200,0.1)',
-                                    borderRadius: '4px',
-                                    fontSize: '0.78rem',
-                                    fontWeight: 600,
-                                    color: 'var(--teal)',
-                                }}>
+                            <td className="py-4">
+                                <span className="px-2 py-1 bg-white/5 border border-white/10 rounded-md text-[10px] font-black text-white">
                                     {v.gene}
                                 </span>
                             </td>
-                            <td className="mono" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                            <td className="py-4 mono text-[10px] text-slate-400">
                                 chr{v.chrom}:{v.pos.toLocaleString()}
                             </td>
-                            <td className="mono" style={{ fontSize: '0.82rem' }}>
-                                <span style={{ color: 'var(--text-muted)' }}>{v.ref}</span>
-                                <span style={{ color: 'var(--text-secondary)' }}> → </span>
-                                <span style={{ color: 'var(--risk-adjust)' }}>{v.alt}</span>
+                            <td className="py-4 mono text-[10px]">
+                                <span className="text-slate-500">{v.ref}</span>
+                                <span className="text-white mx-1">→</span>
+                                <span className="text-orange-400 font-bold">{v.alt}</span>
                             </td>
-                            <td>
+                            <td className="py-4">
                                 {v.star_allele ? (
-                                    <span className="mono" style={{
-                                        color: 'var(--risk-adjust)',
-                                        fontWeight: 600,
-                                        fontSize: '0.85rem',
-                                    }}>
+                                    <span className="mono text-teal-400 font-black text-xs">
                                         {v.star_allele}
                                     </span>
                                 ) : (
-                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>—</span>
+                                    <span className="text-slate-600 text-[10px]">REF</span>
                                 )}
                             </td>
-                            <td className="mono" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                            <td className="py-4 mono text-[10px] text-slate-400 uppercase">
                                 {v.genotype || '—'}
                             </td>
-                            <td style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', maxWidth: '200px' }}>
+                            <td className="py-4 text-[10px] text-slate-500 font-medium max-w-[180px] leading-relaxed">
                                 {v.effect}
                             </td>
                         </tr>
