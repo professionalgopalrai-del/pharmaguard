@@ -33,10 +33,10 @@ PATIENT PHARMACOGENOMIC DATA:
 
 Generate EXACTLY 4 sections as JSON (no markdown, no code blocks, just raw JSON):
 {
-  "summary": "2-3 sentence clinical summary of this patient's pharmacogenomic risk for ${drug}",
-  "mechanism": "2-3 sentence explanation of the biological mechanism of how the ${primaryGene} variants affect ${drug} metabolism/efficacy",
-  "clinicalContext": "2-3 sentences about clinical implications and CPIC guideline recommendations, referencing the specific variants detected",
-  "patientFriendly": "2-3 sentence plain-language explanation for a patient with no medical background"
+  "summary": "2-3 sentence clinical summary of this patient's pharmacogenomic risk for ${drug}. Directly mention their ${diplotype} diplotype.",
+  "mechanism": "2-3 sentence explanation of the biological mechanism of how the ${primaryGene} variants affect ${drug} metabolism/efficacy.",
+  "clinicalContext": "2-3 sentences about clinical implications and CPIC guideline recommendations, specifically citing the ${phenotype} phenotype.",
+  "patientFriendly": "2-3 sentence personalized explanation for the patient. Use 'You' and 'Your'. Explicitly mention their genetic result (${diplotype}) to show this is personalized."
 }`;
 }
 
@@ -101,12 +101,16 @@ export async function generateExplanation(result: PharmaGuardResult): Promise<LL
     }
 
     try {
+        console.log(`[LLM] Attempting to generate explanation for ${result.drug} using OpenRouter...`);
+        console.log(`[LLM] Model: stepfun/step-3.5-flash:free`);
+
         const client = new OpenAI({
             baseURL: 'https://openrouter.ai/api/v1',
             apiKey: apiKey,
         });
 
         const prompt = buildPrompt(result);
+        console.log('[LLM] Prompt built. Sending request to OpenRouter...');
 
         // First API call with reasoning enabled, as per user request
         const response = await client.chat.completions.create({
@@ -122,15 +126,18 @@ export async function generateExplanation(result: PharmaGuardResult): Promise<LL
         });
 
         const content = response.choices[0].message.content || '';
+        console.log('[LLM] Response received from OpenRouter. Length:', content.length);
 
         // Extract JSON from response
         const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
-            console.error('No JSON found in OpenRouter response:', content);
+            console.error('[LLM] No JSON found in OpenRouter response:', content);
             return buildRuleBasedExplanation(result);
         }
 
         const parsed = JSON.parse(jsonMatch[0]);
+        console.log('[LLM] Valid JSON parsed successfully.');
+
         return {
             summary: parsed.summary || '',
             mechanism: parsed.mechanism || '',
@@ -139,7 +146,7 @@ export async function generateExplanation(result: PharmaGuardResult): Promise<LL
             generatedBy: 'openrouter',
         };
     } catch (error) {
-        console.error('LLM explanation error:', error);
+        console.error('[LLM] OpenRouter explanation error:', error);
         return buildRuleBasedExplanation(result);
     }
 }
