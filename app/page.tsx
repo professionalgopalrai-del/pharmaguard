@@ -34,7 +34,6 @@ export default function Home() {
       if (!res.ok) throw new Error(data.error || 'Analysis failed');
 
       setResult(data);
-      // Wait for next tick to scroll
       setTimeout(() => {
         document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -57,12 +56,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* ── Background Atmosphere ────────────────────────── */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-cyan-500/10 blur-[120px] rounded-full animate-pulse-slow"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[100px] rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute top-[30%] right-[10%] w-[30%] h-[30%] bg-purple-600/5 blur-[80px] rounded-full animate-pulse-slow" style={{ animationDelay: '4s' }}></div>
-      </div>
+      <div className="bg-glow" />
 
       {/* ── Navigation ──────────────────────────────────── */}
       <nav className="flex items-center justify-between px-10 py-6 border-b border-white border-opacity-5 sticky top-0 bg-slate-950/40 backdrop-blur-xl z-50">
@@ -87,73 +81,61 @@ export default function Home() {
       </nav>
 
       {/* ── Hero section ────────────────────────────────────── */}
-      <header className="text-center pt-32 pb-24 px-6 max-w-4xl mx-auto w-full animate-fade-in">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-400/10 border border-teal-400/20 rounded-full text-[10px] text-teal-300 font-bold mb-8 tracking-[0.2em] uppercase shadow-sm">
-          Precision Genomic Intelligence v1.0
-        </div>
-
-        <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-8 text-white leading-[1.05]">
-          The Future of<br />
-          <span className="text-teal-400">Drug Safety</span> Analysis
+      <header className="text-center pt-24 pb-16 px-6 max-w-3xl mx-auto w-full animate-fade-in">
+        <h1 className="text-8xl md:text-9xl font-extrabold tracking-tight mb-6 text-white">
+          Analysis
         </h1>
 
-        <p className="text-xl text-slate-400 leading-relaxed mb-0 font-medium max-w-2xl mx-auto">
+        <p className="text-lg text-slate-400 leading-relaxed mb-0 font-medium">
           Instant pharmacogenomic insights to predict patient response and personalize clinical outcomes with CPIC-aligned intelligence.
         </p>
       </header>
 
       {/* ── Main content ───────────────────────────────── */}
-      <main className="flex-1 max-w-3xl w-full mx-auto px-6 pb-40">
-        <div className="space-y-16">
+      <main className="flex-1 max-w-2xl w-full mx-auto px-6 pb-32">
+        <div className="space-y-12">
 
           {/* Form Container */}
-          <div className="card frosted p-12 border-white/10 shadow-2xl relative">
-            <div className="absolute top-0 right-0 p-8 opacity-20 hidden sm:block">
-              <span className="text-6xl">📊</span>
-            </div>
-
+          <div className="card frosted p-10 border-white/5 shadow-xl">
             {/* Step 1 */}
-            <div className="mb-14">
-              <label className="section-title">Step 01. Patient Genomic Profile</label>
+            <div className="mb-12">
+              <label className="text-xs font-bold text-teal-400 uppercase tracking-[0.2em] mb-4 block">Step 01. Patient Genomic Profile</label>
               <FileUpload onFile={setVcfFile} file={vcfFile} />
             </div>
 
             {/* Step 2 */}
-            <div className="mb-14">
-              <label className="section-title">Step 02. Select Target Medications</label>
+            <div className="mb-12">
+              <label className="text-xs font-bold text-teal-400 uppercase tracking-[0.2em] mb-4 block">Step 02. Select Target Medications</label>
               <DrugInput selected={selectedDrugs} onChange={setSelectedDrugs} />
             </div>
 
             {/* Analyze button */}
             <button
-              className={`btn btn-primary w-full py-6 text-lg justify-center font-bold tracking-tight shadow-xl transition-all ${!canAnalyze ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:scale-[1.01]'}`}
+              className="btn btn-primary w-full py-5 text-base justify-center font-bold tracking-tight shadow-xl"
               onClick={handleAnalyze}
               disabled={!canAnalyze || loading}
               id="analyze-btn"
             >
               {loading ? (
-                <div className="flex items-center gap-4">
-                  <LoadingSpinner />
-                  <span>Synthesizing Clinical Data...</span>
-                </div>
+                <>
+                  <span className="animate-spin mr-3">⟳</span>
+                  Analyzing Genome...
+                </>
               ) : (
-                <div className="flex items-center gap-3">
-                  <span>Start PGx Analysis</span>
-                  <span className="text-xl">→</span>
-                </div>
+                <>Start PGx Analysis →</>
               )}
             </button>
           </div>
 
           {/* Results Display */}
-          <div className="min-h-[200px]" id="results-section">
+          <div className="min-h-[200px]">
             {loading ? (
-              <div className="py-24 flex flex-col items-center justify-center text-center animate-pulse">
-                <p className="text-teal-400 font-bold tracking-widest uppercase text-xs mb-4">Computing Variants</p>
+              <div className="card frosted py-20 flex flex-col items-center justify-center text-center animate-pulse">
                 <LoadingSpinner />
+                <p className="mt-6 text-slate-400 font-medium tracking-tight">Processing clinical variants...</p>
               </div>
             ) : result ? (
-              <div className="animate-fade-in border-t border-white/5 pt-20">
+              <div id="results-section" className="animate-fade-in">
                 <ResultsPanel
                   results={result.results as Parameters<typeof ResultsPanel>[0]['results']}
                   meta={result.meta}
@@ -162,8 +144,8 @@ export default function Home() {
                 />
               </div>
             ) : (
-              <div className="text-center px-8 border-t border-white/5 pt-20">
-                <p className="text-sm text-slate-500 font-medium italic">Awaiting clinical input to generate safety report.</p>
+              <div className="text-center px-8 border-t border-white/5 pt-12">
+                <p className="text-sm text-slate-500 font-medium">Awaiting clinical input to generate safety report.</p>
               </div>
             )}
           </div>
@@ -171,22 +153,16 @@ export default function Home() {
       </main>
 
       {/* ── Footer ─────────────────────────────────────── */}
-      <footer className="border-t border-white border-opacity-5 py-12 px-10 flex flex-col md:flex-row justify-between items-center gap-6 bg-slate-950/40 backdrop-blur-md">
-        <div>
-          <p className="text-xs font-bold text-slate-500 tracking-widest uppercase mb-2">
-            🧬 PharmaGuard Platform
-          </p>
-          <p className="text-[10px] text-slate-600 font-medium">
-            Clinical data aligned with CPIC v3.4 Star-Allele Guidelines.
-          </p>
+      <footer className="border-t border-white border-opacity-5 py-8 px-10 flex flex-col md:row justify-between items-center gap-4 bg-slate-950/40">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 rounded bg-teal-400 flex items-center justify-center">
+            <span className="text-[10px]">🧬</span>
+          </div>
+          <span className="font-bold text-xs tracking-tight text-white uppercase italic">PharmaGuard Platform</span>
         </div>
-        <div className="flex gap-10">
-          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-            RIFT 2026 · PGx TRACK
-          </p>
-          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-            MADE WITH GEMINI 2.0
-          </p>
+        <div className="flex gap-8">
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">RIFT 2026 · PGx TRACK</p>
+          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">MADE WITH GEMINI 2.0</p>
         </div>
       </footer>
     </div>
