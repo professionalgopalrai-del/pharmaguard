@@ -69,141 +69,71 @@ export default function Home() {
   const canAnalyze = vcfFile !== null && selectedDrugs.length > 0 && !loading;
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="min-h-screen flex flex-col relative">
+      <div className="bg-glow" />
+
       {/* ── Navbar ──────────────────────────────────────── */}
-      <nav style={{
-        position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(4, 13, 20, 0.88)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid var(--border)',
-        padding: '0 2rem',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        height: '60px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '1.4rem' }}>🧬</span>
-          <span style={{ fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-            Pharma<span style={{ color: 'var(--teal)' }}>Guard</span>
+      <nav className="sticky top-0 z-50 bg-opacity-90 backdrop-blur-xl border-b border-white border-opacity-10 px-8 flex items-center justify-between h-[64px]">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🧬</span>
+          <span className="font-extrabold text-lg tracking-tight text-white">
+            Pharma<span className="text-teal-400">Guard</span>
           </span>
-          <span style={{
-            padding: '2px 8px',
-            background: 'var(--teal-glow)',
-            border: '1px solid var(--border-bright)',
-            borderRadius: '100px',
-            fontSize: '0.65rem',
-            fontWeight: 600,
-            color: 'var(--teal)',
-            letterSpacing: '0.06em',
-          }}>
+          <span className="px-2 py-0.5 bg-teal-400 bg-opacity-10 border border-teal-400 border-opacity-30 rounded-full text-[10px] font-bold text-teal-400 tracking-wider uppercase">
             v1.0 · RIFT 2026
           </span>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div className="flex gap-4 items-center">
           <a
             href="/api/analyze"
-            style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none' }}
+            className="text-xs font-medium text-slate-400 hover:text-teal-400 transition-colors"
             target="_blank"
           >
-            API Docs
+            API DOCS
           </a>
         </div>
       </nav>
 
       {/* ── Hero ───────────────────────────────────────── */}
-      <header style={{
-        textAlign: 'center',
-        padding: '4rem 2rem 3rem',
-        maxWidth: '800px',
-        margin: '0 auto',
-        width: '100%',
-      }}>
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '6px 16px',
-          background: 'var(--teal-glow)',
-          border: '1px solid var(--border-bright)',
-          borderRadius: '100px',
-          fontSize: '0.78rem',
-          color: 'var(--teal)',
-          fontWeight: 600,
-          marginBottom: '1.5rem',
-          letterSpacing: '0.04em',
-        }}>
-          🏥 CPIC-Aligned · Pharmacogenomics AI · 6 Critical Genes
+      <header className="text-center pt-20 pb-16 px-6 max-w-4xl mx-auto w-full animate-fade-in">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-400 bg-opacity-10 border border-teal-400 border-opacity-20 rounded-full text-xs text-teal-400 font-semibold mb-8 tracking-wide shadow-sm">
+          🏥 CPIC-ALIGNED · PHARMACOGENOMICS AI · 6 CRITICAL GENES
         </div>
-        <h1 style={{
-          fontSize: 'clamp(2rem, 5vw, 3.2rem)',
-          fontWeight: 800,
-          lineHeight: 1.1,
-          marginBottom: '1rem',
-          background: 'linear-gradient(135deg, var(--text-primary) 40%, var(--teal) 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}>
+        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-[1.05] bg-gradient-to-br from-white via-slate-100 to-teal-400 bg-clip-text text-transparent">
           Predict Drug Risks<br />Before They Harm
         </h1>
-        <p style={{
-          fontSize: '1rem',
-          lineHeight: 1.8,
-          color: 'var(--text-secondary)',
-          maxWidth: '560px',
-          margin: '0 auto',
-        }}>
+        <p className="text-lg text-slate-400 max-w-xl mx-auto leading-relaxed mb-12">
           Upload a patient VCF file and instantly receive AI-powered pharmacogenomic risk predictions
-          aligned with CPIC guidelines across CYP2D6, CYP2C19, CYP2C9, SLCO1B1, TPMT, and DPYD.
+          aligned with CPIC guidelines across <span className="text-teal-400 font-medium">CYP2D6, CYP2C19, CYP2C9, SLCO1B1, TPMT, and DPYD</span>.
         </p>
 
         {/* Stats row */}
-        <div style={{
-          display: 'flex',
-          gap: '2rem',
-          justifyContent: 'center',
-          marginTop: '2rem',
-          flexWrap: 'wrap',
-        }}>
+        <div className="flex gap-12 justify-center flex-wrap">
           {[
             { value: '6', label: 'Critical Genes' },
             { value: '6', label: 'Supported Drugs' },
             { value: 'CPIC', label: 'Guideline Aligned' },
             { value: 'AI', label: 'LLM Explanations' },
           ].map(s => (
-            <div key={s.label} style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--teal)' }}>{s.value}</p>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
+            <div key={s.label} className="text-center">
+              <p className="text-2xl font-black text-teal-400">{s.value}</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">{s.label}</p>
             </div>
           ))}
         </div>
       </header>
 
       {/* ── Main form ──────────────────────────────────── */}
-      <main style={{
-        flex: 1,
-        maxWidth: '900px',
-        width: '100%',
-        margin: '0 auto',
-        padding: '0 1.5rem 4rem',
-      }}>
+      <main className="flex-1 max-w-4xl w-full mx-auto px-6 pb-20">
         {/* Input card */}
-        <div className="card" style={{ marginBottom: '1.5rem' }}>
+        <div className="card mb-8">
           {/* Step 1 */}
-          <div style={{ marginBottom: '1.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <span style={{
-                width: '28px', height: '28px',
-                borderRadius: '50%',
-                background: 'var(--teal)',
-                color: 'var(--text-on-teal)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                flexShrink: 0,
-              }}>1</span>
-              <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+          <div className="mb-10">
+            <div className="flex items-center gap-4 mb-6">
+              <span className="w-8 h-8 rounded-full bg-teal-400 text-slate-900 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                1
+              </span>
+              <h2 className="text-lg font-bold text-white">
                 Upload Patient VCF File
               </h2>
             </div>
@@ -213,23 +143,13 @@ export default function Home() {
           <div className="divider" />
 
           {/* Step 2 */}
-          <div style={{ marginBottom: '1.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <span style={{
-                width: '28px', height: '28px',
-                borderRadius: '50%',
-                background: selectedDrugs.length > 0 ? 'var(--teal)' : 'var(--bg-secondary)',
-                color: selectedDrugs.length > 0 ? 'var(--text-on-teal)' : 'var(--text-muted)',
-                border: selectedDrugs.length > 0 ? 'none' : '1px solid var(--border)',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 800,
-                fontSize: '0.85rem',
-                flexShrink: 0,
-                transition: 'all var(--transition)',
-              }}>2</span>
-              <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+          <div className="mb-10">
+            <div className="flex items-center gap-4 mb-6">
+              <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 transition-all ${selectedDrugs.length > 0 ? 'bg-teal-400 text-slate-900' : 'bg-slate-800 text-slate-500 border border-slate-700'
+                }`}>
+                2
+              </span>
+              <h2 className="text-lg font-bold text-white">
                 Select Drug(s) to Analyze
               </h2>
             </div>
@@ -240,15 +160,14 @@ export default function Home() {
 
           {/* Analyze button */}
           <button
-            className="btn btn-primary"
+            className="btn btn-primary w-full py-4 text-lg justify-center font-bold"
             onClick={handleAnalyze}
             disabled={!canAnalyze}
             id="analyze-btn"
-            style={{ width: '100%', justifyContent: 'center', padding: '0.875rem', fontSize: '1rem' }}
           >
             {loading ? (
               <>
-                <span style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⟳</span>
+                <span className="animate-spin mr-2">⟳</span>
                 Analyzing...
               </>
             ) : (
@@ -257,8 +176,8 @@ export default function Home() {
           </button>
 
           {!vcfFile && !loading && (
-            <p style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-              Upload a VCF file and select at least one drug to enable analysis
+            <p className="text-center text-[11px] text-slate-500 mt-4 uppercase tracking-wider font-semibold">
+              UPLOAD A VCF FILE AND SELECT AT LEAST ONE DRUG TO ENABLE ANALYSIS
             </p>
           )}
         </div>
@@ -334,20 +253,12 @@ export default function Home() {
       </main>
 
       {/* ── Footer ─────────────────────────────────────── */}
-      <footer style={{
-        borderTop: '1px solid var(--border)',
-        padding: '1.25rem 2rem',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '0.5rem',
-      }}>
-        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+      <footer className="border-t border-white border-opacity-5 py-8 px-10 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-950 bg-opacity-40">
+        <p className="text-xs font-medium text-slate-500 tracking-wide uppercase">
           🧬 PharmaGuard · RIFT 2026 Hackathon · Pharmacogenomics Track
         </p>
-        <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-          CPIC Guidelines · Not for clinical use without physician oversight
+        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest text-center md:text-right">
+          CPIC GUIDELINES · NOT FOR CLINICAL USE WITHOUT PHYSICIAN OVERSIGHT
         </p>
       </footer>
     </div>
