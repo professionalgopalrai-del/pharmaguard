@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import FileUpload from './components/FileUpload';
 import DrugInput from './components/DrugInput';
 import ResultsPanel from './components/ResultsPanel';
@@ -22,7 +22,7 @@ export default function Home() {
 
     try {
       const formData = new FormData();
-      formData.append('vcf', vcfFile);
+      formData.append('vcfFile', vcfFile);
       formData.append('drugs', JSON.stringify(selectedDrugs));
 
       const res = await fetch('/api/analyze', {
@@ -55,114 +55,145 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative">
-      <div className="bg-glow" />
+    <div className="min-h-screen relative flex flex-col">
+      <div className="bg-glow-top" />
 
       {/* ── Navigation ──────────────────────────────────── */}
-      <nav className="flex items-center justify-between px-10 py-6 border-b border-white border-opacity-5 sticky top-0 bg-slate-950/40 backdrop-blur-xl z-50">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-teal-400 flex items-center justify-center">
-            <span className="text-xl">🧬</span>
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-5xl px-6">
+        <div className="glass-panel rounded-full px-6 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center border border-primary/20">
+              <span className="text-lg">🧬</span>
+            </div>
+            <span className="font-display font-bold text-lg tracking-tight text-white italic">
+              Pharma<span className="text-primary">Guard</span>
+            </span>
           </div>
-          <span className="font-bold text-xl tracking-tight text-white uppercase italic">PharmaGuard</span>
-        </div>
-        <div className="hidden md:flex gap-8 items-center">
-          {['Analysis', 'Guidelines', 'Network'].map(item => (
-            <a key={item} href="#" className="text-xs font-bold text-slate-500 hover:text-white tracking-widest uppercase transition-colors">{item}</a>
-          ))}
+
+          <div className="hidden md:flex gap-8 items-center">
+            {['Analysis', 'Guidelines', 'Network'].map(item => (
+              <a key={item} href="#" className="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-colors">
+                {item}
+              </a>
+            ))}
+          </div>
+
           <a
             href="https://ai.google.dev/gemini-api/docs"
-            className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black text-slate-400 hover:text-white transition-all tracking-widest uppercase"
+            className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-[10px] font-black text-slate-300 hover:bg-white/10 hover:text-white transition-all uppercase tracking-widest"
             target="_blank"
           >
-            API DOCS
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            System Online
           </a>
         </div>
       </nav>
 
       {/* ── Hero section ────────────────────────────────────── */}
-      <header className="text-center pt-24 pb-16 px-6 max-w-3xl mx-auto w-full animate-fade-in">
-        <h1 className="text-8xl md:text-9xl font-extrabold tracking-tight mb-6 text-white">
-          Analysis
-        </h1>
+      <main className="flex-1 w-full pt-40 pb-20 px-6">
+        <div className="container-wide max-w-6xl mx-auto flex flex-col items-center">
 
-        <p className="text-lg text-slate-400 leading-relaxed mb-0 font-medium">
-          Instant pharmacogenomic insights to predict patient response and personalize clinical outcomes with CPIC-aligned intelligence.
-        </p>
-      </header>
-
-      {/* ── Main content ───────────────────────────────── */}
-      <main className="flex-1 max-w-2xl w-full mx-auto px-6 pb-32">
-        <div className="space-y-12">
-
-          {/* Form Container */}
-          <div className="card frosted p-10 border-white/5 shadow-xl">
-            {/* Step 1 */}
-            <div className="mb-12">
-              <label className="text-xs font-bold text-teal-400 uppercase tracking-[0.2em] mb-4 block">Step 01. Patient Genomic Profile</label>
-              <FileUpload onFile={setVcfFile} file={vcfFile} />
+          <div className="text-center max-w-4xl mx-auto mb-20 animate-enter">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest mb-6">
+              <span>✨ CPIC Guideline Compliant</span>
             </div>
 
-            {/* Step 2 */}
-            <div className="mb-12">
-              <label className="text-xs font-bold text-teal-400 uppercase tracking-[0.2em] mb-4 block">Step 02. Select Target Medications</label>
-              <DrugInput selected={selectedDrugs} onChange={setSelectedDrugs} />
-            </div>
+            <h1 className="text-6xl md:text-8xl font-bold tracking-tight mb-8 text-white text-balance leading-[0.9]">
+              Precision Medicine <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-200 to-slate-500">Starts with DNA.</span>
+            </h1>
 
-            {/* Analyze button */}
-            <button
-              className="btn btn-primary w-full py-5 text-base justify-center font-bold tracking-tight shadow-xl"
-              onClick={handleAnalyze}
-              disabled={!canAnalyze || loading}
-              id="analyze-btn"
-            >
-              {loading ? (
-                <>
-                  <span className="animate-spin mr-3">⟳</span>
-                  Analyzing Genome...
-                </>
-              ) : (
-                <>Start PGx Analysis →</>
-              )}
-            </button>
+            <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed text-balance">
+              Upload patient genetic data to predict drug interactions, mitigate adverse reactions,
+              and optimize clinical outcomes with AI-powered pharmacogenomics.
+            </p>
           </div>
 
-          {/* Results Display */}
-          <div className="min-h-[200px]">
-            {loading ? (
-              <div className="card frosted py-20 flex flex-col items-center justify-center text-center animate-pulse">
-                <LoadingSpinner />
-                <p className="mt-6 text-slate-400 font-medium tracking-tight">Processing clinical variants...</p>
+          {/* ── Application Workspace ── */}
+          <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            {/* Left: Controls */}
+            <div className="lg:col-span-4 xl:col-span-3 space-y-6 lg:sticky lg:top-32">
+              <div className="glass-card rounded-2xl p-1 overflow-hidden">
+                <div className="bg-slate-900/50 p-4 border-b border-white/5">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    Step 01. Genome Data
+                  </h3>
+                </div>
+                <div className="p-4">
+                  <FileUpload onFile={setVcfFile} file={vcfFile} />
+                </div>
               </div>
-            ) : result ? (
-              <div id="results-section" className="animate-fade-in">
-                <ResultsPanel
-                  results={result.results as Parameters<typeof ResultsPanel>[0]['results']}
-                  meta={result.meta}
-                  onDownload={handleDownload}
-                  rawJson={JSON.stringify(result.results, null, 2)}
-                />
+
+              <div className="glass-card rounded-2xl p-1 overflow-hidden">
+                <div className="bg-slate-900/50 p-4 border-b border-white/5">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    Step 02. Medication Profile
+                  </h3>
+                </div>
+                <div className="p-4">
+                  <DrugInput selected={selectedDrugs} onChange={setSelectedDrugs} />
+                </div>
               </div>
-            ) : (
-              <div className="text-center px-8 border-t border-white/5 pt-12">
-                <p className="text-sm text-slate-500 font-medium">Awaiting clinical input to generate safety report.</p>
-              </div>
-            )}
+
+              <button
+                className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide shadow-lg transition-all ${canAnalyze
+                  ? 'bg-gradient-to-r from-primary-dim to-primary text-white hover:shadow-primary/25 hover:scale-[1.02]'
+                  : 'bg-slate-800 text-slate-500 cursor-not-allowed border border-white/5'
+                  }`}
+                onClick={handleAnalyze}
+                disabled={!canAnalyze || loading}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <span className="animate-spin">⟳</span> Analyzing...
+                  </span>
+                ) : (
+                  'Run Interaction Options Engine'
+                )}
+              </button>
+            </div>
+
+            {/* Right: Results / Illustration */}
+            <div className="lg:col-span-8 xl:col-span-9 min-h-[600px]">
+              {loading ? (
+                <div className="glass-card rounded-3xl h-full flex flex-col items-center justify-center p-20 text-center animate-pulse-slow">
+                  <LoadingSpinner />
+                </div>
+              ) : result ? (
+                <div id="results-section" className="animate-enter">
+                  <ResultsPanel
+                    results={result.results}
+                    meta={result.meta}
+                    onDownload={handleDownload}
+                    rawJson={JSON.stringify(result.results, null, 2)}
+                  />
+                </div>
+              ) : (
+                <div className="glass-card rounded-3xl h-full flex flex-col items-center justify-center p-12 text-center border-dashed border-2 border-white/5 bg-slate-900/20">
+                  <div className="w-24 h-24 rounded-full bg-slate-800/50 flex items-center justify-center mb-6">
+                    <span className="text-4xl opacity-20">📊</span>
+                  </div>
+                  <h3 className="text-xl font-medium text-slate-300 mb-2">Ready for Analysis</h3>
+                  <p className="text-slate-500 max-w-sm mx-auto">
+                    Import a VCF file and select medications to generate a comprehensive pharmacogenomic safety report.
+                  </p>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       </main>
 
       {/* ── Footer ─────────────────────────────────────── */}
-      <footer className="border-t border-white border-opacity-5 py-8 px-10 flex flex-col md:row justify-between items-center gap-4 bg-slate-950/40">
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 rounded bg-teal-400 flex items-center justify-center">
-            <span className="text-[10px]">🧬</span>
+      <footer className="border-t border-white/5 py-12 bg-slate-950/30">
+        <div className="container-wide max-w-6xl mx-auto flex justify-between items-center text-xs text-slate-600 font-medium">
+          <p>© 2026 PHARMAGUARD INC. <span className="mx-2">·</span> CLINICAL DECISION SUPPORT</p>
+          <div className="flex gap-6">
+            <a href="#" className="hover:text-slate-400 transition-colors">PRIVACY</a>
+            <a href="#" className="hover:text-slate-400 transition-colors">TERMS</a>
           </div>
-          <span className="font-bold text-xs tracking-tight text-white uppercase italic">PharmaGuard Platform</span>
-        </div>
-        <div className="flex gap-8">
-          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">RIFT 2026 · PGx TRACK</p>
-          <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">MADE WITH GEMINI 2.0</p>
         </div>
       </footer>
     </div>

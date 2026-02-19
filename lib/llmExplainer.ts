@@ -1,16 +1,16 @@
 // LLM Explanation Generator
-// Uses Google Gemini API to generate clinical explanations
+// Uses OpenRouter (via OpenAI SDK) to generate clinical explanations
 // Falls back to rule-based templates if no API key is set
 
 import { PharmaGuardResult } from './riskPredictor';
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from 'openai';
 
 export interface LLMExplanation {
     summary: string;
     mechanism: string;
     clinicalContext: string;
     patientFriendly: string;
-    generatedBy: 'gemini' | 'rule-based';
+    generatedBy: 'openrouter' | 'rule-based';
 }
 
 function buildPrompt(result: PharmaGuardResult): string {
@@ -93,31 +93,40 @@ function buildRuleBasedExplanation(result: PharmaGuardResult): LLMExplanation {
 }
 
 export async function generateExplanation(result: PharmaGuardResult): Promise<LLMExplanation> {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
+        console.warn('OPENROUTER_API_KEY not set, falling back to rule-based explanation.');
         return buildRuleBasedExplanation(result);
     }
 
     try {
-        const ai = new GoogleGenAI({ apiKey });
-        const prompt = buildPrompt(result);
-
-        const response = await ai.models.generateContent({
-            model: "gemini-2.0-flash",
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
-            config: {
-                temperature: 0.3,
-                maxOutputTokens: 1024,
-            },
+        const client = new OpenAI({
+            baseURL: 'https://openrouter.ai/api/v1',
+            apiKey: apiKey,
         });
 
-        const rawText = response.text || '';
+        const prompt = buildPrompt(result);
+
+        // First API call with reasoning enabled, as per user request
+        const response = await client.chat.completions.create({
+            model: 'stepfun/step-3.5-flash:free',
+            messages: [
+                {
+                    role: 'user',
+                    content: prompt,
+                },
+            ],
+            // @ts-expect-error OpenRouter specific extension
+            reasoning: { enabled: true }
+        });
+
+        const content = response.choices[0].message.content || '';
 
         // Extract JSON from response
-        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
         if (!jsonMatch) {
-            console.error('No JSON found in Gemini response:', rawText);
+            console.error('No JSON found in OpenRouter response:', content);
             return buildRuleBasedExplanation(result);
         }
 
@@ -127,7 +136,7 @@ export async function generateExplanation(result: PharmaGuardResult): Promise<LL
             mechanism: parsed.mechanism || '',
             clinicalContext: parsed.clinicalContext || parsed.clinical_context || '',
             patientFriendly: parsed.patientFriendly || parsed.patient_friendly || '',
-            generatedBy: 'gemini',
+            generatedBy: 'openrouter',
         };
     } catch (error) {
         console.error('LLM explanation error:', error);

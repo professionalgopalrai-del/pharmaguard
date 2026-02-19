@@ -2,12 +2,12 @@
 import { useState } from 'react';
 
 const SUPPORTED_DRUGS = [
-    { name: 'CODEINE', gene: 'CYP2D6', desc: 'Opioid analgesic' },
-    { name: 'WARFARIN', gene: 'CYP2C9', desc: 'Anticoagulant' },
-    { name: 'CLOPIDOGREL', gene: 'CYP2C19', desc: 'Antiplatelet' },
-    { name: 'SIMVASTATIN', gene: 'SLCO1B1', desc: 'Cholesterol-lowering' },
-    { name: 'AZATHIOPRINE', gene: 'TPMT', desc: 'Immunosuppressant' },
-    { name: 'FLUOROURACIL', gene: 'DPYD', desc: '5-FU Chemotherapy' },
+    { name: 'CODEINE', gene: 'CYP2D6', desc: 'Opioid Analgesic', class: 'Pain' },
+    { name: 'WARFARIN', gene: 'CYP2C9', desc: 'Anticoagulant', class: 'Cardio' },
+    { name: 'CLOPIDOGREL', gene: 'CYP2C19', desc: 'Antiplatelet', class: 'Cardio' },
+    { name: 'SIMVASTATIN', gene: 'SLCO1B1', desc: 'Statin', class: 'Lipids' },
+    { name: 'AZATHIOPRINE', gene: 'TPMT', desc: 'Immunosuppressant', class: 'Immuno' },
+    { name: 'FLUOROURACIL', gene: 'DPYD', desc: 'Chemotherapy', class: 'Oncology' },
 ];
 
 interface DrugInputProps {
@@ -20,7 +20,7 @@ export default function DrugInput({ selected, onChange }: DrugInputProps) {
 
     function toggleDrug(name: string) {
         if (selected.includes(name)) {
-            onChange(selected.filter(d => d !== name));
+            onChange(selected.filter((d) => d !== name));
         } else {
             onChange([...selected, name]);
         }
@@ -35,82 +35,85 @@ export default function DrugInput({ selected, onChange }: DrugInputProps) {
     }
 
     function removeDrug(name: string) {
-        onChange(selected.filter(d => d !== name));
+        onChange(selected.filter((d) => d !== name));
     }
 
     return (
-        <div className="flex flex-col gap-6">
-            {/* Quick-select chips */}
+        <div className="space-y-6">
+            {/* Search Input */}
+            <div className="relative group">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-500 group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input
+                    className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 pl-10 pr-20 text-sm placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-white"
+                    value={custom}
+                    onChange={(e) => setCustom(e.target.value)}
+                    placeholder="Search medication..."
+                    onKeyDown={(e) => e.key === 'Enter' && addCustom()}
+                />
+                <button
+                    className="absolute right-2 top-2 bottom-2 px-3 rounded-lg bg-white/5 hover:bg-white/10 text-[10px] font-bold uppercase tracking-wider text-slate-400 transition-colors"
+                    onClick={addCustom}
+                    disabled={!custom}
+                >
+                    Add
+                </button>
+            </div>
+
+            {/* Quick Select Grid */}
             <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Supported Catalog</p>
+                <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Common Requests</h4>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
-                    {SUPPORTED_DRUGS.map(drug => (
-                        <button
-                            key={drug.name}
-                            className={`p-3 rounded-xl border text-left transition-all duration-200 ${selected.includes(drug.name)
-                                    ? 'bg-teal-400/10 border-teal-400/50 shadow-[0_0_15px_rgba(0,245,255,0.05)]'
-                                    : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/[0.08]'
-                                }`}
-                            onClick={() => toggleDrug(drug.name)}
-                            id={`drug-chip-${drug.name.toLowerCase()}`}
-                        >
-                            <div className="flex justify-between items-start mb-1">
-                                <span className={`text-[11px] font-black tracking-tighter ${selected.includes(drug.name) ? 'text-teal-400' : 'text-white'}`}>
-                                    {drug.name}
-                                </span>
-                                {selected.includes(drug.name) && (
-                                    <span className="text-[10px] text-teal-400 font-bold">✓</span>
-                                )}
-                            </div>
-                            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wide">
-                                Target: {drug.gene}
-                            </p>
-                        </button>
-                    ))}
+                    {SUPPORTED_DRUGS.map(drug => {
+                        const isActive = selected.includes(drug.name);
+                        return (
+                            <button
+                                key={drug.name}
+                                onClick={() => toggleDrug(drug.name)}
+                                className={`text-left p-3 rounded-xl border transition-all duration-200 group relative overflow-hidden ${isActive
+                                        ? 'bg-primary/10 border-primary/50 text-white shadow-[0_0_15px_-3px_rgba(14,165,233,0.3)]'
+                                        : 'bg-white/[0.02] border-white/5 text-slate-400 hover:bg-white/[0.05] hover:border-white/10'
+                                    }`}
+                            >
+                                <div className="relative z-10">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <span className={`text-[11px] font-black tracking-tight ${isActive ? 'text-primary' : 'text-slate-300 group-hover:text-white'}`}>
+                                            {drug.name}
+                                        </span>
+                                        {isActive && <span className="text-primary text-xs">✓</span>}
+                                    </div>
+                                    <p className="text-[9px] font-medium opacity-60 uppercase tracking-wide truncate">
+                                        {drug.class} · {drug.desc}
+                                    </p>
+                                </div>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* Custom drug entry */}
-            <div>
-                <div className="flex gap-2">
-                    <input
-                        className="input text-xs py-3 bg-white/5 border-white/5 focus:bg-white/10"
-                        value={custom}
-                        onChange={e => setCustom(e.target.value)}
-                        placeholder="Search alternative drug..."
-                        onKeyDown={e => e.key === 'Enter' && addCustom()}
-                        id="custom-drug-input"
-                    />
-                    <button
-                        className="p-3 rounded-xl bg-white/5 border border-white/5 text-[10px] font-bold text-slate-400 hover:text-white uppercase transition-all"
-                        onClick={addCustom}
-                    >
-                        Add
-                    </button>
-                </div>
-            </div>
-
-            {/* Selected summary */}
+            {/* Selected Queue */}
             {selected.length > 0 && (
-                <div className="p-4 rounded-2xl bg-teal-400/5 border border-teal-400/10 animate-fade-in">
-                    <p className="text-[9px] font-black text-teal-400/50 uppercase tracking-[0.2em] mb-4">
-                        QUEUE ({selected.length})
-                    </p>
+                <div className="pt-4 border-t border-white/5 animate-enter">
+                    <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+                        Analysis Queue ({selected.length})
+                    </h4>
                     <div className="flex flex-wrap gap-2">
                         {selected.map(drug => (
-                            <div
-                                key={drug}
-                                className="flex items-center gap-2 p-2 pl-3 rounded-lg bg-teal-400/10 border border-teal-400/20 text-[10px] font-bold text-teal-400"
-                            >
+                            <span key={drug} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 border border-white/10 text-[10px] font-mono font-bold text-slate-300">
                                 {drug}
                                 <button
                                     onClick={() => removeDrug(drug)}
-                                    className="w-4 h-4 rounded-full bg-teal-400/20 flex items-center justify-center hover:bg-teal-400 hover:text-black transition-colors"
-                                    aria-label={`Remove ${drug}`}
+                                    className="p-0.5 rounded-full hover:bg-white/20 hover:text-white transition-colors"
                                 >
-                                    ×
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                                 </button>
-                            </div>
+                            </span>
                         ))}
                     </div>
                 </div>

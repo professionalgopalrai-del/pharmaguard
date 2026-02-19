@@ -37,17 +37,24 @@ export default function FileUpload({ onFile, file }: FileUploadProps) {
     }
 
     return (
-        <div>
+        <div className="w-full">
             <div
-                className={`upload-zone frosted transition-all duration-300 ${dragging ? 'glow-border scale-[1.02]' : ''} ${file ? 'border-teal-400/50 bg-teal-400/5' : 'border-white/10 hover:border-white/20'}`}
+                className={`relative group cursor-pointer transition-all duration-300 ease-out border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center text-center overflow-hidden ${dragging
+                    ? 'border-primary bg-primary/5 scale-[1.02]'
+                    : file
+                        ? 'border-emerald-500/30 bg-emerald-500/5'
+                        : 'border-white/10 hover:border-white/20 hover:bg-white/5'
+                    }`}
                 onClick={() => inputRef.current?.click()}
-                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragging(true);
+                }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={onDrop}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => e.key === 'Enter' && inputRef.current?.click()}
-                aria-label="Upload VCF file"
             >
                 <input
                     ref={inputRef}
@@ -55,38 +62,44 @@ export default function FileUpload({ onFile, file }: FileUploadProps) {
                     accept=".vcf"
                     className="hidden"
                     onChange={onChange}
-                    id="vcf-file-input"
+                    style={{ display: 'none' }}
                 />
 
+                {/* Background Gradient Effect */}
+                <div className={`absolute inset-0 transition-opacity duration-500 pointer-events-none ${dragging ? 'opacity-100' : 'opacity-0'}`}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                </div>
+
                 {file ? (
-                    <div className="flex flex-col items-center py-4 animate-fade-in">
-                        <div className="w-12 h-12 rounded-full bg-teal-400/20 flex items-center justify-center mb-4">
-                            <span className="text-xl text-teal-400">✓</span>
+                    <div className="animate-enter relative z-10 w-full">
+                        <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center mb-3 mx-auto text-emerald-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
                         </div>
-                        <div className="text-center">
-                            <p className="font-bold text-teal-400 text-sm">{file.name}</p>
-                            <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1 font-bold">
-                                {(file.size / 1024).toFixed(1)} KB · VALID VCF
+                        <div className="space-y-1">
+                            <p className="font-bold text-sm text-emerald-400 truncate max-w-[200px] mx-auto">{file.name}</p>
+                            <p className="text-[10px] font-mono text-emerald-500/70 uppercase tracking-widest">
+                                {(file.size / 1024).toFixed(1)} KB · VCF Validated
                             </p>
                         </div>
-                        <button
-                            className="mt-6 text-[10px] font-black text-slate-400 hover:text-white uppercase tracking-tighter transition-colors"
-                            onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
-                        >
-                            Change Genome File
-                        </button>
+                        <div className="mt-4 pt-4 border-t border-emerald-500/10">
+                            <span className="text-[10px] font-bold text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-wider">
+                                Replace File
+                            </span>
+                        </div>
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center py-6 text-center">
-                        <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                            <span className="text-3xl">🧬</span>
+                    <div className="relative z-10 space-y-4">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mx-auto transition-all ${dragging ? 'bg-primary text-white shadow-lg shadow-primary/40' : 'bg-slate-800 text-slate-400 group-hover:text-white group-hover:scale-110'}`} style={{ width: '48px', height: '48px' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} style={{ width: '24px', height: '24px' }}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
                         </div>
                         <div>
-                            <p className="font-bold text-white text-base mb-2">
-                                {dragging ? 'Release to Load' : 'Import VCF Data'}
-                            </p>
-                            <p className="text-xs text-slate-500 max-w-[200px] leading-relaxed">
-                                Drag & drop or <span className="text-teal-400 underline underline-offset-4">browse patient record</span>
+                            <p className="text-sm font-bold text-slate-200 mb-1">Upload Patient VCF</p>
+                            <p className="text-xs text-slate-500 max-w-[180px] mx-auto">
+                                Drag & drop or click to browse filesystem
                             </p>
                         </div>
                     </div>
@@ -94,24 +107,25 @@ export default function FileUpload({ onFile, file }: FileUploadProps) {
             </div>
 
             {error && (
-                <div className="alert alert-error mt-4 text-[10px] py-3 font-bold uppercase tracking-wider">
-                    <span>⚠️ {error}</span>
+                <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-3 animate-enter">
+                    <span className="text-lg">⚠️</span>
+                    <p className="text-xs font-bold text-red-400">{error}</p>
                 </div>
             )}
 
-            <div className="mt-4 flex justify-between items-center px-1">
-                <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">
-                    VCF v4.2 · MAX 5MB
-                </p>
-                <a
-                    href="/samples/sample_patient.vcf"
-                    download
-                    onClick={(e) => e.stopPropagation()}
-                    className="text-[10px] font-black text-teal-400/70 hover:text-teal-400 uppercase tracking-tighter border-b border-teal-400/20 pb-0.5"
-                >
-                    Get Sample File
-                </a>
-            </div>
+            {!file && (
+                <div className="mt-4 flex justify-between items-center px-1 opacity-60 hover:opacity-100 transition-opacity">
+                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">Max 5MB</span>
+                    <a
+                        href="/samples/sample_patient.vcf"
+                        download
+                        onClick={(e) => e.stopPropagation()}
+                        className="text-[10px] font-bold text-primary hover:text-primary-dim border-b border-primary/20 hover:border-primary transition-all pb-0.5"
+                    >
+                        Download Sample VCF
+                    </a>
+                </div>
+            )}
         </div>
     );
 }

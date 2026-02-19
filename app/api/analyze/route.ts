@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
         const vcfContent = await file.text();
         const validation = validateVCF(vcfContent);
         if (!validation.valid) {
+            console.log('VCF Validation Failed:', validation.error);
             return NextResponse.json(
                 { error: `Invalid VCF file: ${validation.error}` },
                 { status: 400 }

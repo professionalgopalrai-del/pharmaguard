@@ -27,6 +27,24 @@ export interface ParsedVCF {
 
 const PGX_GENES = new Set(['CYP2D6', 'CYP2C19', 'CYP2C9', 'SLCO1B1', 'TPMT', 'DPYD']);
 
+// Rough gene region mapping (GRCh38) for fallback
+// Ranges expanded to catch upstream/downstream variants often reported in pharmacogenomics
+function extractGeneFromChrom(chrom: string, pos: number): string | null {
+  const chr = chrom.replace(/^chr/i, '');
+  const regions: Array<{ chr: string; start: number; end: number; gene: string }> = [
+    { chr: '22', start: 42120000, end: 42930000, gene: 'CYP2D6' }, // Expanded window ~800kb
+    { chr: '10', start: 94760000, end: 94860000, gene: 'CYP2C19' },
+    { chr: '10', start: 94930000, end: 95180000, gene: 'CYP2C9' },
+    { chr: '12', start: 21200000, end: 21400000, gene: 'SLCO1B1' },
+    { chr: '6', start: 18120000, end: 18160000, gene: 'TPMT' },
+    { chr: '1', start: 97540000, end: 98400000, gene: 'DPYD' },
+  ];
+  for (const r of regions) {
+    if (chr === r.chr && pos >= r.start && pos <= r.end) return r.gene;
+  }
+  return null;
+}
+
 export function parseVCF(content: string): ParsedVCF {
   const lines = content.split(/\r?\n/);
   const variants: VCFVariant[] = [];
@@ -70,8 +88,9 @@ export function parseVCF(content: string): ParsedVCF {
     // Data lines
     dataLineCount++;
     const cols = line.split('\t');
-    if (cols.length < 8) {
-      parseErrors.push(`Line ${i + 1}: insufficient columns (${cols.length})`);
+    if (cols.length < 5) { // Relaxed check: allows minimal VCFs without quality/filter
+      // Only log error if it's vastly malformed, otherwise skip silently or warn
+      if (cols.length > 1) parseErrors.push(`Line ${i + 1}: insufficient columns (${cols.length})`);
       continue;
     }
 
@@ -124,8 +143,10 @@ export function parseVCF(content: string): ParsedVCF {
     if (gene && PGX_GENES.has(gene.toUpperCase())) {
       variants.push(variant);
     } else if (!gene) {
-      // Include if rsid matches known PGx variants
-      variants.push(variant);
+      // Include if rsid matches known PGx variants or looks like an rsID
+      if (rsid && rsid.startsWith('rs')) {
+        variants.push(variant);
+      }
     }
   }
 
@@ -143,23 +164,6 @@ export function parseVCF(content: string): ParsedVCF {
   };
 }
 
-// Rough gene region mapping (GRCh38) for fallback
-function extractGeneFromChrom(chrom: string, pos: number): string | null {
-  const chr = chrom.replace('chr', '');
-  const regions: Array<{ chr: string; start: number; end: number; gene: string }> = [
-    { chr: '22', start: 42522500, end: 42526883, gene: 'CYP2D6' },
-    { chr: '10', start: 94762681, end: 94855517, gene: 'CYP2C19' },
-    { chr: '10', start: 94938657, end: 95172838, gene: 'CYP2C9' },
-    { chr: '12', start: 21284073, end: 21378928, gene: 'SLCO1B1' },
-    { chr: '6', start: 18128312, end: 18155374, gene: 'TPMT' },
-    { chr: '1', start: 97543299, end: 98388615, gene: 'DPYD' },
-  ];
-  for (const r of regions) {
-    if (chr === r.chr && pos >= r.start && pos <= r.end) return r.gene;
-  }
-  return null;
-}
-
 export function validateVCF(content: string): { valid: boolean; error?: string } {
   if (!content || content.trim().length === 0) {
     return { valid: false, error: 'File is empty' };
@@ -169,9 +173,9 @@ export function validateVCF(content: string): { valid: boolean; error?: string }
   if (!hasHeader) {
     return { valid: false, error: 'Missing VCF header lines (lines starting with #)' };
   }
-  const hasData = lines.some(l => !l.startsWith('#') && l.split('\t').length >= 8);
+  const hasData = lines.some(l => !l.startsWith('#') && l.split('\t').length >= 5);
   if (!hasData) {
-    return { valid: false, error: 'No valid data lines found in VCF file (need at least 8 tab-separated columns)' };
+    return { valid: false, error: 'No valid data lines found in VCF file (need at least 5 tab-separated columns)' };
   }
   return { valid: true };
 }

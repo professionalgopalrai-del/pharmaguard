@@ -20,32 +20,37 @@ export default function ExplanationSection({ explanation }: { explanation: Expla
     ];
 
     return (
-        <div className="flex flex-col gap-6">
-            <div className="flex items-center justify-between">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Genomic Intelligence</p>
-                <div className="px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[8px] font-black uppercase text-slate-500">
-                    {explanation.generated_by === 'gemini' ? '✨ Gemini AI' : 'Rule-Based'}
-                </div>
-            </div>
-
-            <div className="flex p-1 bg-white/[0.03] border border-white/5 rounded-2xl">
-                {tabs.map(tab => (
+        <div className="mt-2 bg-slate-950/30 rounded-xl border border-white/5 overflow-hidden">
+            <div className="flex border-b border-white/5">
+                {tabs.map((tab) => (
                     <button
                         key={tab.key}
                         onClick={() => setActiveTab(tab.key)}
-                        className={`flex-1 py-2 px-2 rounded-xl text-[10px] font-black uppercase tracking-tight transition-all ${activeTab === tab.key
-                            ? 'bg-white/10 text-white'
-                            : 'text-slate-500 hover:text-slate-300'
+                        className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-wider transition-all relative ${activeTab === tab.key
+                                ? 'text-primary bg-white/[0.02]'
+                                : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.01]'
                             }`}
                     >
                         {tab.label}
+                        {activeTab === tab.key && (
+                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_-2px_6px_rgba(14,165,233,0.5)]" />
+                        )}
                     </button>
                 ))}
             </div>
-
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 leading-relaxed">
-                <p className="text-sm text-slate-300 font-medium whitespace-pre-wrap">
-                    {tabs.find(t => t.key === activeTab)?.content || 'Data unavailable.'}
+            <div className="p-5">
+                <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                        {tabs.find(t => t.key === activeTab)?.label}
+                    </span>
+                    {explanation.generated_by === 'gemini' && (
+                        <span className="flex items-center gap-1.5 text-[9px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full border border-purple-500/20">
+                            <span>✨</span> AI Analysis
+                        </span>
+                    )}
+                </div>
+                <p className="text-sm text-slate-300 leading-relaxed font-medium">
+                    {tabs.find((t) => t.key === activeTab)?.content || 'Data unavailable.'}
                 </p>
             </div>
         </div>

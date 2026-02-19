@@ -64,16 +64,16 @@ interface ResultsPanelProps {
 
 function ConfidenceBar({ score }: { score: number }) {
     const pct = Math.round(score * 100);
-    const colorClass = pct >= 85 ? 'bg-teal-400' : pct >= 65 ? 'bg-orange-400' : 'bg-red-400';
+    const colorClass = pct >= 85 ? 'bg-emerald-400' : pct >= 65 ? 'bg-amber-400' : 'bg-rose-400';
     return (
         <div className="flex items-center gap-3">
-            <div className="flex-1 bg-white/5 rounded-full h-1.5 overflow-hidden">
+            <div className="flex-1 bg-white/10 rounded-full h-1.5 overflow-hidden backdrop-blur-sm">
                 <div
-                    className={`h-full transition-all duration-1000 ease-out ${colorClass}`}
+                    className={`h-full transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(0,0,0,0.2)] ${colorClass}`}
                     style={{ width: `${pct}%` }}
                 />
             </div>
-            <span className="text-[10px] font-black w-8 text-right text-slate-500">{pct}%</span>
+            <span className="text-[10px] font-mono font-bold w-8 text-right text-slate-400">{pct}%</span>
         </div>
     );
 }
@@ -81,89 +81,112 @@ function ConfidenceBar({ score }: { score: number }) {
 function SingleResult({ data, index }: { data: ResultData; index: number }) {
     const [expanded, setExpanded] = useState({
         variants: false,
-        recommendation: true,
         explanation: false,
-        json: false,
     });
 
     const toggle = (key: keyof typeof expanded) => {
-        setExpanded(prev => ({ ...prev, [key]: !prev[key] }));
+        setExpanded((prev) => ({ ...prev, [key]: !prev[key] }));
     };
 
     return (
-        <div className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-            <div className="card frosted p-0 overflow-hidden">
-                {/* Header */}
-                <div className="p-8 pb-4">
-                    <div className="flex items-start justify-between gap-4 mb-6">
-                        <div className="flex flex-wrap items-center gap-3">
+        <div className="glass-card rounded-2xl overflow-hidden animate-enter" style={{ animationDelay: `${index * 0.1}s` }}>
+            {/* Header */}
+            <div className="p-6 border-b border-white/5 bg-gradient-to-r from-white/[0.02] to-transparent">
+                <div className="flex items-start justify-between gap-4 mb-4">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-2xl font-bold text-white tracking-tight">{data.drug}</h3>
                             <RiskBadge
                                 risk={data.risk_assessment.risk_label}
                                 severity={data.risk_assessment.severity}
-                                size="lg"
+                                size="md"
                             />
-                            <div className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-xl font-black text-white tracking-tight">
-                                {data.drug}
-                            </div>
+                        </div>
+                        <p className="text-xs font-medium text-slate-400">
+                            {data.pharmacogenomic_profile.primary_gene} · {data.pharmacogenomic_profile.phenotype}
+                        </p>
+                    </div>
+                    <div className="text-right hidden sm:block">
+                        <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Confidence</p>
+                        <div className="w-24">
+                            <ConfidenceBar score={data.risk_assessment.confidence_score} />
                         </div>
                     </div>
                 </div>
+            </div>
 
-                {/* Sub-header Summary */}
-                <div className="px-8 py-6 bg-white/[0.01] border-y border-white/5 flex flex-wrap gap-x-16 gap-y-6">
-                    <div>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Genetic Profile</p>
-                        <p className="text-base font-bold text-white">
-                            {data.pharmacogenomic_profile.primary_gene} {data.pharmacogenomic_profile.diplotype}
-                        </p>
-                        <p className="text-xs text-slate-400 mt-1">{data.pharmacogenomic_profile.phenotype}</p>
+            {/* Actionable Content */}
+            <div className="p-6 space-y-6">
+                {/* Clinical Recommendation Box */}
+                <div className="relative rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 p-5 overflow-hidden">
+                    <div className="absolute top-0 right-0 p-3 opacity-10">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
                     </div>
-                    <div className="flex-1 min-w-[200px] max-w-sm">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Analysis Confidence</p>
-                        <ConfidenceBar score={data.risk_assessment.confidence_score} />
-                    </div>
-                </div>
 
-                {/* Content Sections */}
-                <div className="p-8 flex flex-col gap-6">
-                    <div className="rounded-2xl bg-teal-400/[0.03] border border-teal-400/10 p-6">
-                        <h4 className="font-black text-white text-sm tracking-tight uppercase mb-4">Clinical Recommendation</h4>
-                        <p className="text-sm text-slate-300 leading-relaxed font-medium mb-6">{data.clinical_recommendation.action}</p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-teal-400/10">
-                            <div>
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Guidance</label>
-                                <p className="text-sm font-bold text-white">{data.clinical_recommendation.dosing_guidance}</p>
-                            </div>
+                    <h4 className="text-[10px] font-black text-primary uppercase tracking-widest mb-2">Clinical Action</h4>
+                    <p className="text-sm font-bold text-white leading-relaxed relative z-10">
+                        {data.clinical_recommendation.action}
+                    </p>
+
+                    {(data.clinical_recommendation.dosing_guidance || data.clinical_recommendation.alternative_drug) && (
+                        <div className="mt-4 pt-4 border-t border-primary/20 grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+                            {data.clinical_recommendation.dosing_guidance && (
+                                <div>
+                                    <span className="text-[9px] font-bold text-primary/70 uppercase tracking-wider block mb-1">Dosing</span>
+                                    <p className="text-xs text-slate-300 font-medium">{data.clinical_recommendation.dosing_guidance}</p>
+                                </div>
+                            )}
                             {data.clinical_recommendation.alternative_drug && (
                                 <div>
-                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 block">Alternative</label>
-                                    <p className="text-sm font-bold text-teal-400">{data.clinical_recommendation.alternative_drug}</p>
+                                    <span className="text-[9px] font-bold text-primary/70 uppercase tracking-wider block mb-1">Consider Alternative</span>
+                                    <p className="text-xs text-white font-bold bg-primary/20 inline-block px-2 py-0.5 rounded">
+                                        {data.clinical_recommendation.alternative_drug}
+                                    </p>
                                 </div>
                             )}
                         </div>
-                    </div>
+                    )}
+                </div>
 
-                    <div className="flex flex-col gap-3">
-                        <button onClick={() => toggle('explanation')} className="w-full flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Detailed AI Explanation</span>
-                            <span className="text-xs">{expanded.explanation ? '−' : '+'}</span>
-                        </button>
-                        {expanded.explanation && (
-                            <div className="p-4 border-t border-white/5">
-                                <ExplanationSection explanation={data.llm_generated_explanation} />
-                            </div>
-                        )}
+                {/* Expandable Sections */}
+                <div className="space-y-2">
+                    {/* Explanation Toggle */}
+                    <button
+                        onClick={() => toggle('explanation')}
+                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-colors group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className={`w-1.5 h-1.5 rounded-full transition-colors ${expanded.explanation ? 'bg-primary' : 'bg-slate-600 group-hover:bg-slate-500'}`} />
+                            <span className="text-xs font-bold text-slate-400 group-hover:text-slate-200 uppercase tracking-wider transition-colors">
+                                AI Explanation
+                            </span>
+                        </div>
+                        <span className="text-slate-500 text-xs">{expanded.explanation ? 'Close' : 'View'}</span>
+                    </button>
+                    {expanded.explanation && (
+                        <div className="pl-4 pb-2 animate-enter">
+                            <ExplanationSection explanation={data.llm_generated_explanation} />
+                        </div>
+                    )}
 
-                        <button onClick={() => toggle('variants')} className="w-full flex items-center justify-between p-4 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-colors">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Genomic Evidence</span>
-                            <span className="text-xs">{expanded.variants ? '−' : '+'}</span>
-                        </button>
-                        {expanded.variants && (
-                            <div className="p-4 border-t border-white/5">
-                                <VariantTable variants={data.pharmacogenomic_profile.detected_variants} />
-                            </div>
-                        )}
-                    </div>
+                    {/* Variants Toggle */}
+                    <button
+                        onClick={() => toggle('variants')}
+                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-colors group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className={`w-1.5 h-1.5 rounded-full transition-colors ${expanded.variants ? 'bg-emerald-400' : 'bg-slate-600 group-hover:bg-slate-500'}`} />
+                            <span className="text-xs font-bold text-slate-400 group-hover:text-slate-200 uppercase tracking-wider transition-colors">
+                                Genomic Evidence
+                            </span>
+                        </div>
+                        <span className="text-slate-500 text-xs">{expanded.variants ? 'Close' : 'View'}</span>
+                    </button>
+                    {expanded.variants && (
+                        <div className="pl-4 pb-2 animate-enter">
+                            <VariantTable variants={data.pharmacogenomic_profile.detected_variants} />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -180,23 +203,37 @@ export default function ResultsPanel({ results, meta, onDownload, rawJson }: Res
     };
 
     return (
-        <div className="flex flex-col gap-10">
-            <div className="flex items-center justify-between border-b border-white/5 pb-8">
+        <div className="space-y-8">
+            {/* Header Stats */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/5 pb-6">
                 <div>
-                    <h2 className="text-3xl font-bold text-white mb-2">Safety Report</h2>
-                    <p className="text-sm text-slate-500 font-medium">Patient {meta.patient_id} · {results.length} medications analyzed</p>
+                    <h2 className="text-2xl font-bold text-white mb-1">Clinical Safety Report</h2>
+                    <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5 font-mono text-slate-400">
+                            PID: {meta.patient_id}
+                        </span>
+                        <span>·</span>
+                        <span>{results.length} medications analyzed</span>
+                    </div>
                 </div>
                 <div className="flex gap-3">
-                    <button className="px-5 py-2.5 rounded-lg border border-white/10 text-xs font-bold text-slate-300 hover:bg-white/5 transition-colors" onClick={copyToClipboard}>
-                        {copied ? 'Copied' : 'Copy Trace'}
+                    <button
+                        className="px-4 py-2 rounded-lg border border-white/10 text-[10px] font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-all uppercase tracking-wider"
+                        onClick={copyToClipboard}
+                    >
+                        {copied ? '✓ Copied' : 'Copy JSON'}
                     </button>
-                    <button className="px-6 py-2.5 rounded-lg bg-white text-black text-xs font-bold hover:bg-slate-200 transition-colors" onClick={onDownload}>
-                        Download PDF
+                    <button
+                        className="px-4 py-2 rounded-lg bg-white text-slate-900 text-[10px] font-bold hover:bg-slate-200 transition-all uppercase tracking-wider shadow-lg shadow-white/10"
+                        onClick={onDownload}
+                    >
+                        Export Report
                     </button>
                 </div>
             </div>
 
-            <div className="flex flex-col gap-6">
+            {/* Grid of Results */}
+            <div className="grid grid-cols-1 gap-6">
                 {results.map((result, i) => (
                     <SingleResult key={result.drug} data={result} index={i} />
                 ))}

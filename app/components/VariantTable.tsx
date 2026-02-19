@@ -15,40 +15,49 @@ interface Variant {
 export default function VariantTable({ variants }: { variants: Variant[] }) {
     if (variants.length === 0) {
         return (
-            <div className="p-6 text-center text-xs text-slate-500 font-medium bg-white/5 rounded-xl border border-white/5">
-                No genomic variants detected for this patient record.
+            <div className="p-4 text-center text-xs text-slate-500 italic bg-white/[0.02] rounded-lg border border-white/5">
+                No specific variants flagged.
             </div>
         );
     }
 
     return (
-        <div className="overflow-x-auto rounded-xl border border-white/5 bg-slate-950/20">
-            <table className="w-full text-left font-medium">
-                <thead className="bg-white/5 border-b border-white/5">
-                    <tr>
-                        <th className="px-6 py-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest">rsID</th>
-                        <th className="px-6 py-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Gene</th>
-                        <th className="px-6 py-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Locus</th>
-                        <th className="px-6 py-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Allele</th>
-                        <th className="px-6 py-4 text-[9px] font-bold text-slate-500 uppercase tracking-widest">Effect</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.03]">
-                    {variants.map((v, i) => (
-                        <tr key={i} className="hover:bg-white/[0.01]">
-                            <td className="px-6 py-4 mono text-[11px] text-teal-400 font-bold">{v.rsid}</td>
-                            <td className="px-6 py-4 text-[10px] text-white font-black">{v.gene}</td>
-                            <td className="px-6 py-4 mono text-[10px] text-slate-500">chr{v.chrom}:{v.pos}</td>
-                            <td className="px-6 py-4">
-                                <span className="mono text-xs text-white font-bold">{v.ref}</span>
-                                <span className="mx-2 text-slate-600">→</span>
-                                <span className="mono text-xs text-teal-400 font-black">{v.alt}</span>
-                            </td>
-                            <td className="px-6 py-4 text-[10px] text-slate-400 max-w-[150px]">{v.effect}</td>
+        <div className="overflow-hidden rounded-xl border border-white/5 bg-slate-900/40">
+            <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                    <thead className="bg-white/[0.02] border-b border-white/5">
+                        <tr>
+                            <th className="px-4 py-3 text-[9px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">Variant</th>
+                            <th className="px-4 py-3 text-[9px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">Gene</th>
+                            <th className="px-4 py-3 text-[9px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">Change</th>
+                            <th className="px-4 py-3 text-[9px] font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">Impact</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.03]">
+                        {variants.map((v, i) => (
+                            <tr key={i} className="group hover:bg-white/[0.02] transition-colors">
+                                <td className="px-4 py-3">
+                                    <div className="flex flex-col">
+                                        <span className="font-mono text-[11px] font-bold text-emerald-400">{v.rsid}</span>
+                                        <span className="font-mono text-[9px] text-slate-600">chr{v.chrom}:{v.pos}</span>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-3 text-xs font-bold text-white">{v.gene}</td>
+                                <td className="px-4 py-3">
+                                    <div className="flex items-center gap-2 font-mono text-xs">
+                                        <span className="text-slate-400">{v.ref}</span>
+                                        <span className="text-slate-600">→</span>
+                                        <span className="text-white font-bold bg-white/10 px-1 rounded">{v.alt}</span>
+                                    </div>
+                                </td>
+                                <td className="px-4 py-3 text-[10px] font-medium text-slate-400 break-words max-w-[200px]">
+                                    {v.effect}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
