@@ -2,7 +2,7 @@
 
 > **RIFT 2026 Hackathon** · Pharmacogenomics / Explainable AI Track
 
-**Live Demo:** [https://pharmaguard.vercel.app](https://pharmaguard.vercel.app) *(deploy link)*
+**Live Demo:** [https://pharmaguard-three.vercel.app/](https://pharmaguard-three.vercel.app/) *(deploy link)*
 **Demo Video:** [LinkedIn Video](#) *(#RIFT2026 #PharmaGuard #Pharmacogenomics #AIinHealthcare)*
 
 ---
@@ -12,6 +12,13 @@
 PharmaGuard is an AI-powered web application that analyzes patient genetic data (VCF files) and drug names to predict personalized pharmacogenomic risks, providing clinically actionable recommendations with LLM-generated explanations — aligned with CPIC guidelines.
 
 Adverse drug reactions kill over **100,000 Americans annually**. Many are preventable through pharmacogenomic testing. PharmaGuard makes this analysis fast, accessible, and explainable.
+
+### Key Features
+- **VCF v4.2 Parsing**: Robust client/server-side parsing of genomic data files.
+- **Pharmacogenomic Intelligence**: CPIC-aligned risk prediction for 8+ major drugs (Codeine, Warfarin, Clopidogrel, etc.).
+- **Visual Reports**: Interactive, glassmorphic UI with Light/Dark mode support.
+- **AI-Powered Explanations**: Personalized, context-aware clinical summaries powered by OpenRouter (StepFun-3.5) with reasoning capabilities.
+- **Secure & Private**: Data processing happens within the session; VCFs are validated locally.
 
 ---
 
@@ -45,8 +52,8 @@ Adverse drug reactions kill over **100,000 Americans annually**. Many are preven
 |-------|-----------|
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript |
-| Styling | Vanilla CSS (dark medical-tech theme) |
-| LLM | Google Gemini 2.0 Flash (optional) |
+| Styling | Vanilla CSS + Tailwind CSS (dark/light medical-tech theme) |
+| LLM | OpenRouter API (StepFun-3.5-flash) |
 | VCF Parsing | Custom TypeScript parser |
 | PGx Knowledge | CPIC-aligned hardcoded knowledge base |
 | Deployment | Vercel / Render / Netlify |
@@ -94,9 +101,9 @@ npm run dev
 
 ### Optional: Gemini API Key
 
-Get a free API key at [Google AI Studio](https://aistudio.google.com/app/apikey) and add it to `.env.local`:
+Get a free API key at [OpenRouter](https://openrouter.ai/) and add it to `.env.local`:
 ```
-GEMINI_API_KEY=your_key_here
+OPENROUTER_API_KEY=sk-or-v1-...
 ```
 
 Without the API key, the app falls back to rule-based clinical explanations — fully functional.
