@@ -95,102 +95,58 @@ export default function Home() {
       </nav>
 
       {/* ── Hero section ────────────────────────────────────── */}
-      <header className="text-center pt-24 pb-20 px-6 max-w-5xl mx-auto w-full animate-fade-in">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white bg-opacity-5 border border-white border-opacity-10 rounded-full text-[10px] text-slate-400 font-bold mb-10 tracking-[0.2em] uppercase shadow-inner">
-          <span className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse"></span>
-          CPIC-ALIGNED · GENOMIC INTELLIGENCE · v1.0
-        </div>
-
-        <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-8 leading-[0.95] text-white">
-          Smart Drug<br />
-          <span className="bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">Safety</span> Analysis
+      <header className="text-center pt-24 pb-16 px-6 max-w-3xl mx-auto w-full animate-fade-in">
+        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 text-white">
+          Genomic Drug Safety
         </h1>
 
-        <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-16 font-medium">
-          PharmaGuard leverages advanced pharmacogenomics to predict patient response across
-          <span className="text-white"> 6 critical genes</span> and primary psychiatric & cardiovascular medications.
+        <p className="text-lg text-slate-400 leading-relaxed mb-0 font-medium">
+          Upload a patient's VCF file to instantly check for pharmacogenomic risks and receive personalized dosing guidance.
         </p>
-
-        {/* Info Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-          {[
-            { label: 'Standard', value: 'VCF v4.2' },
-            { label: 'Guidelines', value: 'CPIC v3' },
-            { label: 'Model', value: 'Gemini 2.0' },
-            { label: 'Scope', value: 'PGx Only' },
-          ].map(s => (
-            <div key={s.label} className="p-4 rounded-2xl bg-white bg-opacity-[0.02] border border-white border-opacity-5">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{s.label}</p>
-              <p className="text-sm font-bold text-teal-400">{s.value}</p>
-            </div>
-          ))}
-        </div>
       </header>
 
       {/* ── Main content ───────────────────────────────── */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-6 pb-32">
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
+      <main className="flex-1 max-w-2xl w-full mx-auto px-6 pb-32">
+        <div className="space-y-12">
 
-          {/* Left Column: Form */}
-          <div className="w-full lg:w-5/12 sticky top-24">
-            <div className="card frosted glow-border p-8">
-              <h3 className="text-xl font-black text-white mb-8 tracking-tight">Configuration</h3>
-
-              {/* Step 1 */}
-              <div className="mb-10">
-                <label className="section-title">01. Genomic Data</label>
-                <FileUpload onFile={setVcfFile} file={vcfFile} />
-              </div>
-
-              {/* Step 2 */}
-              <div className="mb-10">
-                <label className="section-title">02. Medication</label>
-                <DrugInput selected={selectedDrugs} onChange={setSelectedDrugs} />
-              </div>
-
-              {/* Analyze button */}
-              <button
-                className="btn btn-primary w-full py-5 text-sm justify-center font-black tracking-widest uppercase shadow-2xl"
-                onClick={handleAnalyze}
-                disabled={!canAnalyze}
-                id="analyze-btn"
-              >
-                {loading ? (
-                  <>
-                    <span className="animate-spin mr-3 font-normal">⟳</span>
-                    Analyzing Patient Genome...
-                  </>
-                ) : (
-                  <>Begin PGx Analysis</>
-                )}
-              </button>
-
-              {!vcfFile && !loading && (
-                <p className="text-center text-[9px] text-slate-500 mt-6 font-bold tracking-[0.15em] uppercase">
-                  Awaiting Input Data
-                </p>
-              )}
+          {/* Form Container */}
+          <div className="card frosted p-10 border-white/5 shadow-xl">
+            {/* Step 1 */}
+            <div className="mb-12">
+              <label className="text-xs font-bold text-teal-400 uppercase tracking-[0.2em] mb-4 block">Step 01. Patient Genome</label>
+              <FileUpload onFile={setVcfFile} file={vcfFile} />
             </div>
 
-            {/* Error display */}
-            {error && (
-              <div className="alert alert-error mt-6 animate-slide-in">
-                <span className="text-lg">⚠️</span>
-                <div>
-                  <p className="font-bold underline decoration-red-500/50 underline-offset-4 mb-1">Analysis Halted</p>
-                  <p className="text-[11px] leading-relaxed opacity-80">{error}</p>
-                </div>
-              </div>
-            )}
+            {/* Step 2 */}
+            <div className="mb-12">
+              <label className="text-xs font-bold text-teal-400 uppercase tracking-[0.2em] mb-4 block">Step 02. Select Medications</label>
+              <DrugInput selected={selectedDrugs} onChange={setSelectedDrugs} />
+            </div>
+
+            {/* Analyze button */}
+            <button
+              className="btn btn-primary w-full py-5 text-base justify-center font-bold tracking-tight shadow-xl"
+              onClick={handleAnalyze}
+              disabled={!canAnalyze}
+              id="analyze-btn"
+            >
+              {loading ? (
+                <>
+                  <span className="animate-spin mr-3">⟳</span>
+                  Analyzing Genome...
+                </>
+              ) : (
+                <>Run Safety Analysis</>
+              )}
+            </button>
           </div>
 
-          {/* Right Column: Dynamic Results/Info */}
-          <div className="w-full lg:w-7/12 min-h-[600px] flex flex-col gap-6">
+          {/* Results Display */}
+          <div className="min-h-[200px]">
             {loading ? (
-              <div className="card frosted flex-1 flex flex-col items-center justify-center p-12 text-center">
+              <div className="card frosted py-20 flex flex-col items-center justify-center text-center animate-pulse">
                 <LoadingSpinner />
-                <h4 className="mt-8 text-lg font-bold text-white">Synthesizing Genomic Insights</h4>
-                <p className="text-sm text-slate-500 mt-2 max-w-xs">Cross-referencing variants with CPIC star-allele guidelines and LLM knowledge base.</p>
+                <p className="mt-6 text-slate-400 font-medium tracking-tight">Processing clinical variants...</p>
               </div>
             ) : result ? (
               <div id="results-section" className="animate-fade-in">
@@ -202,40 +158,8 @@ export default function Home() {
                 />
               </div>
             ) : (
-              <div className="flex flex-col gap-6">
-                <div className="card bg-teal-400 bg-opacity-[0.02] border-teal-400/10 p-8">
-                  <h4 className="text-teal-400 font-bold mb-4 flex items-center gap-2">
-                    <span className="text-xl">ℹ️</span> How it works
-                  </h4>
-                  <ul className="space-y-4">
-                    {[
-                      { t: 'Format', d: 'Supports VCF v4.2 with rsIDs or GENE:STAR notation in INFO.' },
-                      { t: 'Logic', d: 'Rule-based diplotype mapping follows CPIC consensus tables.' },
-                      { t: 'Explanation', d: 'Gemini Pro 1.5 generates context-aware clinical mechanism summaries.' },
-                    ].map(i => (
-                      <li key={i.t} className="flex gap-4">
-                        <span className="text-teal-400 text-xs mt-1">●</span>
-                        <div>
-                          <p className="text-sm font-bold text-white mb-1">{i.t}</p>
-                          <p className="text-xs text-slate-500 leading-relaxed">{i.d}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { i: '🤖', t: 'LLM Agent', d: 'Advanced reasoning for complex drug interactions.' },
-                    { i: '🔒', t: 'Privacy First', d: 'Local parsing of genomic variants before synthesis.' },
-                  ].map(card => (
-                    <div key={card.t} className="card bg-white/5 border-white/5 p-6 hover:bg-white/[0.07] transition-all">
-                      <span className="text-2xl mb-4 block">{card.i}</span>
-                      <h5 className="font-bold text-white text-sm mb-2">{card.t}</h5>
-                      <p className="text-[11px] text-slate-500 leading-relaxed">{card.d}</p>
-                    </div>
-                  ))}
-                </div>
+              <div className="text-center px-8 border-t border-white/5 pt-12">
+                <p className="text-sm text-slate-500 font-medium">Ready to analyze. Upload a patient VCF to begin.</p>
               </div>
             )}
           </div>

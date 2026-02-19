@@ -129,19 +129,16 @@ function SingleResult({ data, index }: { data: ResultData; index: number }) {
                 </div>
 
                 {/* Sub-header Summary */}
-                <div className="px-8 py-4 bg-white/[0.02] border-y border-white/5 flex flex-wrap gap-x-12 gap-y-4">
+                <div className="px-8 py-6 bg-white/[0.01] border-y border-white/5 flex flex-wrap gap-x-16 gap-y-6">
                     <div>
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">PGx Profile</p>
-                        <p className="text-sm font-bold text-teal-400">
-                            {data.pharmacogenomic_profile.primary_gene}: {data.pharmacogenomic_profile.diplotype}
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Genetic Profile</p>
+                        <p className="text-base font-bold text-white">
+                            {data.pharmacogenomic_profile.primary_gene} {data.pharmacogenomic_profile.diplotype}
                         </p>
-                    </div>
-                    <div>
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Phenotype</p>
-                        <p className="text-sm font-bold text-white">{data.pharmacogenomic_profile.phenotype}</p>
+                        <p className="text-xs text-slate-400 mt-1">{data.pharmacogenomic_profile.phenotype}</p>
                     </div>
                     <div className="flex-1 min-w-[200px] max-w-sm">
-                        <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Verification Confidence</p>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Analysis Confidence</p>
                         <ConfidenceBar score={data.risk_assessment.confidence_score} />
                     </div>
                 </div>
@@ -232,28 +229,21 @@ export default function ResultsPanel({ results, meta, onDownload, rawJson }: Res
     }
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-10 mt-8">
             {/* Results header bar */}
-            <div className="card frosted glow-border p-8 flex items-center justify-between flex-wrap gap-8">
+            <div className="flex items-center justify-between border-b border-white/5 pb-8">
                 <div>
-                    <div className="flex items-center gap-3 mb-2">
-                        <span className="w-12 h-12 rounded-2xl bg-teal-400/10 flex items-center justify-center text-teal-400">
-                            <span className="text-2xl">✓</span>
-                        </span>
-                        <div>
-                            <h3 className="text-lg font-black text-white">Analysis Complete</h3>
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-                                Report ID: {meta.patient_id.toUpperCase()} · {results.length} DRUGS
-                            </p>
-                        </div>
-                    </div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Safety Report</h2>
+                    <p className="text-sm text-slate-500 font-medium">
+                        Patient {meta.patient_id} · {results.length} medications analyzed
+                    </p>
                 </div>
-                <div className="flex gap-4">
-                    <button className="btn btn-secondary px-6 py-3 text-[10px] font-black uppercase tracking-widest" onClick={copyToClipboard} id="copy-json-btn">
+                <div className="flex gap-3">
+                    <button className="px-5 py-2.5 rounded-lg border border-white/10 text-xs font-bold text-slate-300 hover:bg-white/5 transition-colors" onClick={copyToClipboard}>
                         {copied ? 'Copied' : 'Copy Trace'}
                     </button>
-                    <button className="btn btn-primary px-8 py-3 text-[10px] font-black uppercase tracking-widest" onClick={onDownload} id="download-json-btn">
-                        Export Report
+                    <button className="px-6 py-2.5 rounded-lg bg-white text-black text-xs font-bold hover:bg-slate-200 transition-colors" onClick={onDownload}>
+                        Download PDF
                     </button>
                 </div>
             </div>
